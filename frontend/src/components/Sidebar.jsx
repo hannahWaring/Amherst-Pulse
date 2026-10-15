@@ -1,5 +1,5 @@
 import React from 'react';
-import {House, MapPin, Folder} from 'lucide-react';
+import {House, MapPin, Folder, Plus} from 'lucide-react';
 
 const menuItems = [
     {label: 'Home', icon: House},
@@ -7,7 +7,7 @@ const menuItems = [
     {label: 'Collections', icon: Folder}
 ];
 
-export default function Sidebar() {
+export default function Sidebar({onCreatePin}) {
     return (
         <aside className="w-64 min-h-[calc(100vh-4rem)] shrink-0 border-r border-slate-200 bg-white p-4">
             <nav className = "flex flex-col gap-2">
@@ -31,6 +31,19 @@ export default function Sidebar() {
 
             })}
         </nav>
+        
+{/* Pin button*/}
+<div className="mt-5 border-t border-slate-100 pt-5">
+  <button
+    type="button"
+    onClick={onCreatePin}
+    className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 px-4 py-3 font-semibold text-white shadow-md shadow-violet-200 hover:from-violet-700 hover:to-purple-700"
+  >
+    <Plus className="h-5 w-5" />
+    Create Pin
+  </button>
+</div>
+
             <div className = "mt-10">
                  <h3 className="mb-4 text-sm font-bold text-[#1f2757]">
                     Filters
