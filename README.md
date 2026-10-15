@@ -12,4 +12,5 @@ For frontend:
  - for demo of ui - we are using a demo key from google map, don't forget to run ``npm install "@vis.gl/react-google-maps"
  - the demo key is in .env.local file
  - also don't forget to add ''import tailwindcss from "@tailwindcss/vite" '' in vite.config.js
+ - run: using ``npm run dev``
 
