@@ -1,4 +1,4 @@
-# Using AI to help with Welcome page
+# Using AI to help with Welcome page and Default Page
 
 ## Main takeaways
 
