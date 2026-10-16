@@ -20,7 +20,7 @@ available through the ChatGPT web interface.
 ## Chat log
 
 User:
-Wait, wait—give me the map image first. Remember, the map image should not include the background, okay?
+Wait, wait—give me the map image of Amherst Town the map image should not include the background, okay?
 User:
 [Image attachment]
 [Image attachment]
