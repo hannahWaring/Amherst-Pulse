@@ -42,7 +42,17 @@ export default function Sidebar({onCreatePin}) {
     <Plus className="h-5 w-5" />
     Create Pin
   </button>
+  {/* Create Collection */}
+  <button
+    type="button"
+    onClick={onCreatePin}
+    className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 px-4 py-3 font-semibold text-white shadow-md shadow-violet-200 hover:from-violet-700 hover:to-purple-700 mt-2"
+  >
+    <Plus className="h-5 w-5" />
+    Create Collection
+  </button>
 </div>
+
 
             <div className = "mt-10">
                  <h3 className="mb-4 text-sm font-bold text-[#1f2757]">
