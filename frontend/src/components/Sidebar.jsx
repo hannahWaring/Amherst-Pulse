@@ -7,7 +7,7 @@ const menuItems = [
     {label: 'Collections', icon: Folder}
 ];
 
-export default function Sidebar({onCreatePin}) {
+export default function Sidebar({onCreatePin, onCreateCollection}) {
     return (
         <aside className="w-64 min-h-[calc(100vh-4rem)] shrink-0 border-r border-slate-200 bg-white p-4">
             <nav className = "flex flex-col gap-2">
@@ -45,7 +45,7 @@ export default function Sidebar({onCreatePin}) {
   {/* Create Collection */}
   <button
     type="button"
-    onClick={onCreatePin}
+    onClick={onCreateCollection}
     className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 px-4 py-3 font-semibold text-white shadow-md shadow-violet-200 hover:from-violet-700 hover:to-purple-700 mt-2"
   >
     <Plus className="h-5 w-5" />
