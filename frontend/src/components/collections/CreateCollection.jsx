@@ -9,6 +9,17 @@ const phases = [
 ]
 
 export default function CreateCollection({onClose}) {
+    //handline phases
+    const [phase, setPhase] = useState(1);
+    const handleNext = () => {
+        setPhase((prevPhase) => prevPhase + 1); 
+    };
+    const handleCancel = () => {
+        setPhase(1); // Reset to the first phase
+        onClose(); // Close the modal
+    };
+    //Ai-gen code ^^ check 
+
     // title left
     const [title, setTile] = useState('');
     // description o the right
