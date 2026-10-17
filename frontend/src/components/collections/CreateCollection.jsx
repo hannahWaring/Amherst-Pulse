@@ -4,7 +4,7 @@ import {Upload, NotebookText,  X, ImagePlus, Search, ArrowRight} from 'lucide-re
 
 const phases = [
     'Basic Info',
-    'Time',
+    'Add Pins',
     'Sharing'
 ]
 
@@ -26,7 +26,7 @@ export default function CreateCollection({onClose}) {
                             Create New Collection
                         </h2>
                         <p className = "text-sm text-slate-500">
-                            Add a place to your personal map
+                            Create a collection of pins!
                         </p>
                     </div>
                     
@@ -83,40 +83,17 @@ export default function CreateCollection({onClose}) {
 
   {/* Location -left */}
   <div className="rounded-2xl bg-[#F8F6FF] p-5">
-    <h3 className="mb-3 text-lg font-bold text-[#1f2757]">
-      Cover Image
-    </h3>
-
     <div className="flex h-48 flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-violet-200 bg-white">
       <Upload className="h-10 w-10 text-violet-500" />
     </div>
 
-    <label className="mt-5 block text-sm font-semibold text-[#1f2757]">
-      Location *
-    </label>
-
-    <div className="mt-2 flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3">
-      <Search className="h-5 w-5 text-slate-400" />
-
-      <input
-        type="text"
-        placeholder="Search or select on map..."
-        className="w-full bg-transparent text-sm text-slate-700 outline-none"
-      />
-    </div>
-
     <p className="mt-3 text-xs text-slate-400">
-      Choose a location for your pin.
+      Upload a cover photo for your collection.
     </p>
   </div>
 
   {/* RIGHT — Pin Details */}
   <div className="flex flex-col gap-5 py-2">
-    <div>
-      <h3 className="text-lg font-bold text-[#1f2757]">
-        Pin description.
-      </h3>
-    </div>
 
     {/*title */}
     <div>
@@ -128,7 +105,7 @@ export default function CreateCollection({onClose}) {
         type="text"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        placeholder="e.g. Du Bois library"
+        placeholder="e.g. Study Spots on Campus"
         className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
       />
     </div>
@@ -143,7 +120,7 @@ export default function CreateCollection({onClose}) {
         rows={5}
         value={description}
         onChange={(e) => setDescription(e.target.value)}
-        placeholder="What's happening here?"
+        placeholder="What's your collection all about?"
         className="w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
       />
     </div>
