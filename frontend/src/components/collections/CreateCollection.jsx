@@ -6,6 +6,7 @@ import {
   ImagePlus,
   Search,
   ArrowRight,
+  ArrowLeft,
 } from "lucide-react";
 
 const phases = ["Basic Info", "Add Pins", "Sharing"];
@@ -16,16 +17,15 @@ export default function CreateCollection({ onClose }) {
   const handleNext = () => {
     if (phase < phases.length - 1) setPhase((prevPhase) => prevPhase + 1);
   };
-  const handleCancel = () => {
-    setPhase(0); // Reset to the first phase
-    onClose(); // Close the modal
+  const handleBack = () => {
+    setPhase((prevPhase) => prevPhase - 1);
   };
   const handleSave = () => {
     //send to DB Here
     setPhase(0); // Reset to the first phase
     onClose(); // Close the modal
   };
-  //Ai-gen code ^^ check
+
   {
     /* handle phase rendering */
   }
@@ -156,10 +156,11 @@ export default function CreateCollection({ onClose }) {
         <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-5">
           <button
             type="button"
-            onClick={onClose}
-            className="rounded-xl px-5 py-3 text-sm font-medium text-slate-500 hover:bg-slate-100"
+            onClick={handleBack}
+            className={`flex items-center gap-2 rounded-xl bg-violet-600 px-6 py-3 text-sm font-semibold text-white ${phase === 0 ? "invisible" : ""}`}
           >
-            Cancel
+            <ArrowLeft className="h-4 w-4" />
+            Back
           </button>
 
           <button
