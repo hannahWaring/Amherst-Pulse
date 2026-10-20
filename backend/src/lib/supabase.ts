@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { env } from "../config/env.js";
-
+import type { Database } from "../types/database.types.js";
 const serverOptions = {
   auth: { autoRefreshToken: false, persistSession: false },
 };
@@ -13,7 +13,7 @@ export const supabaseAdmin = createClient(
 );
 
 // Uses the publishable key (sb_publishable_...): for acting as an end user (e.g. password sign-in).
-export const supabasePublic = createClient(
+export const supabasePublic = createClient<Database>(
   env.supabaseUrl,
   env.supabasePublishableKey,
   serverOptions,
