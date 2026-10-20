@@ -3,7 +3,6 @@ import {
   Upload,
   NotebookText,
   X,
-  ImagePlus,
   Search,
   ArrowRight,
   ArrowLeft,
@@ -26,69 +25,78 @@ export default function CreateCollection({ onClose }) {
     onClose(); // Close the modal
   };
 
+  function phase1() {
+    return (
+      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+        {/* Location -left */}
+        <div className="rounded-2xl bg-[#F8F6FF] p-5">
+          <div className="flex h-48 flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-violet-200 bg-white">
+            <Upload className="h-10 w-10 text-violet-500" />
+          </div>
+
+          <p className="mt-3 text-xs text-slate-400">
+            Upload a cover photo for your collection.
+          </p>
+        </div>
+
+        {/* RIGHT — Pin Details */}
+        <div className="flex flex-col gap-5 py-2">
+          {/*title */}
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-[#1f2757]">
+              Pin Title <span className="text-red-500">*</span>
+            </label>
+
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g. Study Spots on Campus"
+              className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+            />
+          </div>
+
+          {/* description */}
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-[#1f2757]">
+              Description
+            </label>
+
+            <textarea
+              rows={5}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="What's your collection all about?"
+              className="w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+  function phase2() {
+    return (
+      <div className="mt-2 flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3">
+        <Search className="h-5 w-5 text-slate-400" />
+
+        <input
+          type="text"
+          placeholder="Search your saved pins..."
+          className="w-full bg-transparent text-sm text-slate-700 outline-none"
+        />
+      </div>
+    );
+  }
+
   {
     /* handle phase rendering */
   }
   const renderPhaseContent = () => {
     switch (phase) {
       case 0:
-        return (
-          <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
-            {/* Location -left */}
-            <div className="rounded-2xl bg-[#F8F6FF] p-5">
-              <div className="flex h-48 flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-violet-200 bg-white">
-                <Upload className="h-10 w-10 text-violet-500" />
-              </div>
-
-              <p className="mt-3 text-xs text-slate-400">
-                Upload a cover photo for your collection.
-              </p>
-            </div>
-
-            {/* RIGHT — Pin Details */}
-            <div className="flex flex-col gap-5 py-2">
-              {/*title */}
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-[#1f2757]">
-                  Pin Title <span className="text-red-500">*</span>
-                </label>
-
-                <input
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g. Study Spots on Campus"
-                  className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
-                />
-              </div>
-
-              {/* description */}
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-[#1f2757]">
-                  Description
-                </label>
-
-                <textarea
-                  rows={5}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="What's your collection all about?"
-                  className="w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
-                />
-              </div>
-            </div>
-          </div>
-        );
+        return phase1();
       case 1:
-        return (<div className="mt-2 flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3">
-              <Search className="h-5 w-5 text-slate-400" />
-        
-              <input
-                type="text"
-                placeholder="Search your saved pins..."
-                className="w-full bg-transparent text-sm text-slate-700 outline-none"
-              />
-            </div>);
+        return phase2();
       case 2:
         return <div>Sharing Content</div>;
       default:
