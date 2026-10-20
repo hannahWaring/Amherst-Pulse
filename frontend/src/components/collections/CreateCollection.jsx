@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Upload,
   NotebookText,
@@ -80,7 +80,15 @@ export default function CreateCollection({ onClose }) {
           </div>
         );
       case 1:
-        return <div>Add Pins Content</div>;
+        return (<div className="mt-2 flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3">
+              <Search className="h-5 w-5 text-slate-400" />
+        
+              <input
+                type="text"
+                placeholder="Search your saved pins..."
+                className="w-full bg-transparent text-sm text-slate-700 outline-none"
+              />
+            </div>);
       case 2:
         return <div>Sharing Content</div>;
       default:
@@ -119,12 +127,12 @@ export default function CreateCollection({ onClose }) {
         </div>
         {/*Phases Navigation visual*/}
         <div className="mt-6 grid grid-cols-3 gap-4">
-          {phases.map((phase, index) => (
-            <div key={phase} className="flex flex9col gap-3">
+          {phases.map((phaseName, index) => (
+            <div key={phaseName} className="flex flex9col gap-3">
               <div className="flex items-center gap-2">
                 <div
                   className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
-                    index === 0
+                    index === phase
                       ? "bg-violet-600 text-white"
                       : "bg-violet-50 text-slate-400"
                   }`}
@@ -133,16 +141,16 @@ export default function CreateCollection({ onClose }) {
                 </div>
                 <span
                   className={`text-sm font-medium ${
-                    index == 0 ? "text-violet-700" : "text-slate-400"
+                    index === phase ? "text-violet-700" : "text-slate-400"
                   }`}
                 >
-                  {phase}
+                  {phaseName}
                 </span>
               </div>
 
               <div
                 className={`h-1 rounded-full ${
-                  index === 0 ? "bg-violet-600" : "bg-violet-100"
+                  index === phase ? "bg-violet-600" : "bg-violet-100"
                 }`}
               />
             </div>
