@@ -9,15 +9,15 @@ This is a CS320 course project. `frontend/` and `database/` are still empty (`.g
 Stack:
 - **Backend:** Express 5 + TypeScript (Node.js, ESM) — scaffolded in `backend/`
 - **Auth:** Supabase — usernames are mapped to undeliverable `<username>@<AUTH_EMAIL_DOMAIN>` emails; no email confirmation
-- **Database:** PostgreSQL via `pg` (`DATABASE_URL`)
+- **Database:** PostgreSQL (Supabase-hosted). All data access uses the `supabase-js` query builder (`supabaseAdmin.from(...)`); no direct Postgres connection
 
 ### Backend commands (run in `backend/`)
 
-- `cp .env.example .env` and fill in Supabase/Postgres values
+- `cp .env.example .env` and fill in Supabase values
 - `npm run dev` — dev server with reload (tsx watch)
 - `npm run build` / `npm start` — compile to `dist/` and run
 - `npm run typecheck` — type-check only
-- No test or lint setup yet.
+- `npm test` — Jest (@swc/jest, supertest); tests live in `backend/tests/`. No lint setup yet.
 
 ## AI use rules for this course (CS320)
 
