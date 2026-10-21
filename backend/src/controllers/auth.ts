@@ -1,6 +1,10 @@
 import type { Session } from "@supabase/supabase-js";
 import type { Request, Response } from "express";
-import { supabaseAdmin, supabasePublic, usernameToEmail } from "../lib/supabase.js";
+import {
+  supabaseAdmin,
+  supabasePublic,
+  usernameToEmail,
+} from "../lib/supabase.js";
 
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.length > 0;
@@ -45,11 +49,17 @@ export async function signup(req: Request, res: Response) {
       email_confirm: true,
     });
   if (createError) {
-    if (createError.code === "email_exists" || createError.code === "user_already_exists") {
+    if (
+      createError.code === "email_exists" ||
+      createError.code === "user_already_exists"
+    ) {
       res.status(409).json({ error: "Username is already taken" });
       return;
     }
-    if (createError.code === "weak_password" || createError.code === "email_address_invalid") {
+    if (
+      createError.code === "weak_password" ||
+      createError.code === "email_address_invalid"
+    ) {
       res.status(400).json({ error: createError.message });
       return;
     }
@@ -103,7 +113,9 @@ export async function login(req: Request, res: Response) {
 
 export async function logout(req: Request, res: Response) {
   const header = req.headers.authorization;
-  const token = header?.startsWith("Bearer ") ? header.slice("Bearer ".length) : "";
+  const token = header?.startsWith("Bearer ")
+    ? header.slice("Bearer ".length)
+    : "";
   if (!token) {
     res.status(401).json({ error: "Missing bearer token" });
     return;
@@ -125,7 +137,9 @@ export async function refresh(req: Request, res: Response) {
     return;
   }
 
-  const { data, error } = await supabasePublic.auth.refreshSession({ refresh_token });
+  const { data, error } = await supabasePublic.auth.refreshSession({
+    refresh_token,
+  });
   if (error || !data.session) {
     res.status(401).json({ error: "Invalid or expired refresh token" });
     return;

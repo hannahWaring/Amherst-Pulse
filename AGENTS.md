@@ -17,7 +17,10 @@ Stack:
 - `npm run dev` — dev server with reload (tsx watch)
 - `npm run build` / `npm start` — compile to `dist/` and run
 - `npm run typecheck` — type-check only
-- `npm test` — Jest (@swc/jest, supertest); tests live in `backend/tests/`. No lint setup yet.
+- `npm test` — Jest (@swc/jest, supertest): runs unit then integration tests. No lint setup yet.
+  - `npm run test:unit` — `backend/tests/unit/`; no Docker or local Supabase needed
+  - `npm run test:integration` — `backend/tests/integration/`; needs Docker running. Starts the local Supabase if needed and resets its database first (both skipped in CI, which starts its own)
+- `npm run db:sync` — after a schema change in the hosted dashboard: pulls a new migration, resets the local database, and regenerates `src/lib/database.types.ts`
 
 ## AI use rules for this course (CS320)
 

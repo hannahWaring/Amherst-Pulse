@@ -1,7 +1,8 @@
 /** @type {import('jest').Config} */
-export default {
+const shared = {
   testEnvironment: "node",
-  roots: ["<rootDir>/tests"],
+  // Loads .env.test (local Supabase) before any test module imports the app.
+  setupFiles: ["<rootDir>/jest.setup.ts"],
   // The package is ESM ("type": "module"), so run .ts files as ES modules too.
   extensionsToTreatAsEsm: [".ts"],
   // Source imports use NodeNext-style ".js" extensions; map them back to the .ts files.
@@ -21,4 +22,13 @@ export default {
       },
     ],
   },
+};
+
+export default {
+  projects: [
+    // No Docker or local Supabase needed.
+    { ...shared, displayName: "unit", roots: ["<rootDir>/tests/unit"] },
+    // Run against the local Supabase stack (`npx supabase start`).
+    { ...shared, displayName: "integration", roots: ["<rootDir>/tests/integration"] },
+  ],
 };
