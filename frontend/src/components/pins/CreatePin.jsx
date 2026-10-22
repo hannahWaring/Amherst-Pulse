@@ -235,6 +235,8 @@ else {setPhase(Phase+1);}}}
     className="flex items-center gap-2 rounded-xl bg-violet-600 px-6 py-3 text-sm font-semibold text-white"
   >
     {Phase  === 2 ? "Create" : "Next"}
+    <ArrowRight className="h-4 w-4" />
+    
 
   </button>
 
