@@ -11,7 +11,7 @@ const phases = [
 export default function CreatePin({onClose}) {
     // title left
     const [title, setTitle] = useState('');
-    const [currentPhase, setCurrentPhase] = useState(0);
+    const [Phase, setPhase] = useState(0);
     // description o the right
     const [description, setDescription] = useState('');
     return (
@@ -26,9 +26,6 @@ export default function CreatePin({onClose}) {
                         <h2 className = "text-2xl font-bold text-[#1f2757]">
                             Create New Pin
                         </h2>
-                        <p className = "text-sm text-slate-500">
-                            Add a place to your personal map
-                        </p>
                     </div>
                     <div className  = "flex flex-items justify-center" >
                         <h3 className='text-sm font-bold text-slate-100'>
@@ -54,7 +51,7 @@ export default function CreatePin({onClose}) {
                     <div className = "flex items-center gap-2">
                         <div
           className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
-            index === 0 
+            index === Phase 
             ? 'bg-violet-600 text-white'
             : 'bg-violet-50 text-slate-400'
           }`}
@@ -63,7 +60,7 @@ export default function CreatePin({onClose}) {
         </div>
         <span 
         className = {`text-sm font-medium ${
-            index ==0 
+            index == Phase
             ? 'text-violet-700' 
             : 'text-slate-400'
 
@@ -75,7 +72,7 @@ export default function CreatePin({onClose}) {
 
         <div
         className={`h-1 rounded-full ${
-          index === 0 
+          index === Phase
           ? 'bg-violet-600' 
           : 'bg-violet-100'
         }`}
@@ -87,7 +84,7 @@ export default function CreatePin({onClose}) {
 
         
 {/* Phase 1 */}
-{currentPhase === 0 && (
+{Phase === 0 && (
 <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
 
   {/* Location -left */}
@@ -117,9 +114,6 @@ export default function CreatePin({onClose}) {
       />
     </div>
 
-    <p className="mt-3 text-xs text-slate-400">
-      Choose a location for your pin.
-    </p>
   </div>
 
   {/* RIGHT — Pin Details */}
@@ -163,7 +157,7 @@ export default function CreatePin({onClose}) {
 </div>)}
 
 {/* Phase 2*/}
-
+{Phase ==1 && (
 <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
 
   {/* Location -left */}
@@ -185,11 +179,12 @@ export default function CreatePin({onClose}) {
   </div>
 </div>
   </div>
-</div>
+</div>)}
 
 {/* Phase 3*/}
-<div className = "mt-6 rounded-2xl bg-[#F8F6FF] p-5">
-  <h3 className = "mb-4 text-lg font-bold text-[#1f2757]">
+{Phase == 2 && (
+<div className = "justify-center mt-6 w-full mx-auto rounded-2xl bg-[#F8F6FF] p-5">
+  <h3 className = "mx-auto w-full  mb-4 text-lg font-bold text-[#1f2757]">
   Visibility
   </h3>
 
@@ -215,26 +210,33 @@ export default function CreatePin({onClose}) {
   Public
      </label>
     </div>  
-</div>
+
+</div>)}
 
 {/* Footer */}
 <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-5">
-  <button
-    type="button"
-    onClick={onClose}
-    className="rounded-xl px-5 py-3 text-sm font-medium text-slate-500 hover:bg-slate-100"
-  >
-    Cancel
-  </button>
+
 
   <button
+    type = "button"
+    onClick = {() => { if (Phase > 0) {setPhase(Phase-1);} }}
+    className="  rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-slate-500 text-white"
+
+  >
+    Back
+  </button>
+    <button
     type="button"
+    onClick={() =>{ 
+  if (Phase ==2) {
+    onClose();
+  }
+else {setPhase(Phase+1);}}}
     className="flex items-center gap-2 rounded-xl bg-violet-600 px-6 py-3 text-sm font-semibold text-white"
   >
-    Next
-    <ArrowRight className="h-4 w-4" />
-  </button>
+    {Phase  === 2 ? "Create" : "Next"}
 
+  </button>
 
 </div>
 
