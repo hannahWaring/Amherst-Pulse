@@ -22,7 +22,7 @@ export const pinsRepository = {
     const validPins = pins.filter((pin) => pin !== null);
     return validPins as Pin[];
   },
-  //do we need get pin by users?
+  //do we need get pin by users? 
 
   // Get a pin by its ID.
   async findById(id: string): Promise<Pin | null> {
