@@ -10,7 +10,8 @@ const phases = [
 
 export default function CreatePin({onClose}) {
     // title left
-    const [title, setTile] = useState('');
+    const [title, setTitle] = useState('');
+    const [currentPhase, setCurrentPhase] = useState(0);
     // description o the right
     const [description, setDescription] = useState('');
     return (
@@ -20,7 +21,7 @@ export default function CreatePin({onClose}) {
                 {/* Header*/}
                 <div className = "flex items-center justify-between">
                     <div className = "flex items-center gap-3">
-                    <MapPin className = "h-6 w-6 text-violin-600" />
+                    <MapPin className = "h-6 w-6 text-violet-600" />
                     <div className ="text-left">
                         <h2 className = "text-2xl font-bold text-[#1f2757]">
                             Create New Pin
@@ -29,21 +30,27 @@ export default function CreatePin({onClose}) {
                             Add a place to your personal map
                         </p>
                     </div>
-                    
+                    <div className  = "flex flex-items justify-center" >
+                        <h3 className='text-sm font-bold text-slate-100'>
+                            Timing
+                        </h3>
+                    </div>
             </div>
             <button
-            type ="button"
-            onClick = {onClose}
-            aria-label = "Close Modal"
-            className = "rounded-lg-p-2 text-slate-500 hover:bg-slate-100"
+                type ="button"
+                onClick = {onClose}
+                aria-label = "Close Modal"
+                className = "rounded-lg p-2 text-slate-500 hover:bg-slate-100"
             >
                 <X className  ="h-5 w-5" />
                 </button> 
         </div>
         {/*Phases Navigation*/}
+        
         <div className = "mt-6 grid grid-cols-3 gap-4">
             {phases.map((phase, index) => (
-                <div key = {phase} className = "flex flex9col gap-3">
+                //  key phase is for changing between key states 
+                <div key = {phase} className = "flex flex-col gap-3">
                     <div className = "flex items-center gap-2">
                         <div
           className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
@@ -74,11 +81,13 @@ export default function CreatePin({onClose}) {
         }`}
       />
     </div>
+
   ))}
 </div>
 
         
 {/* Phase 1 */}
+{currentPhase === 0 && (
 <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
 
   {/* Location -left */}
@@ -151,6 +160,61 @@ export default function CreatePin({onClose}) {
       />
     </div>
   </div>
+</div>)}
+
+{/* Phase 2*/}
+
+<div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+
+  {/* Location -left */}
+  <div className="rounded-2xl bg-[#F8F6FF] p-5">
+    <h3 className="mb-3 text-lg font-bold text-[#1f2757]">
+      Event
+    </h3>
+    {/*dropdown for time... to ... */}
+<input type = "date"/>
+<div className="flex items-center gap-4">
+  <div>
+    <label>From Time</label>
+    <input type="time" />
+  </div>
+
+  <div>
+    <label>To Time</label>
+    <input type="time" />
+  </div>
+</div>
+  </div>
+</div>
+
+{/* Phase 3*/}
+<div className = "mt-6 rounded-2xl bg-[#F8F6FF] p-5">
+  <h3 className = "mb-4 text-lg font-bold text-[#1f2757]">
+  Visibility
+  </h3>
+
+   <div className  = "flex items-center gap-6">
+     <label className="flex items-center gap-2">
+      <input
+        type = "radio"
+        name = "visibility"
+        value = "private"
+        defaultChecked
+        className = "accent-violet-600"
+      />
+      Private
+     </label>
+
+     <label>
+<input
+  type = "radio"
+  name = "visibility"
+  value = "public"
+  className = "accent-violet-600"
+/>
+  Public
+     </label>
+    </div>  
 </div>
 
 {/* Footer */}
@@ -170,6 +234,8 @@ export default function CreatePin({onClose}) {
     Next
     <ArrowRight className="h-4 w-4" />
   </button>
+
+
 </div>
 
 
