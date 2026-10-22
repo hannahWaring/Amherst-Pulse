@@ -42,7 +42,6 @@ export const collectionsRepository = {
     return data as Collection | null;
   },
 
-  // Update a collection.
   async update(
     id: string,
     input: UpdateCollectionInput
@@ -53,7 +52,6 @@ export const collectionsRepository = {
     return data as Collection;
   },
 
-  // Delete a collection.
   async delete(id: string): Promise<void> {
     const { error } = await supabasePublic
       .from(TABLE)
