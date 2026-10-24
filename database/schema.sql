@@ -42,6 +42,27 @@ CREATE TABLE "collection_members" (
 
 COMMENT ON COLUMN "collection_members"."role" IS 'collaborator or viewer';
 
+
+-- prevent duplicate pins within the same collection
+ALTER TABLE public.collection_pins
+ADD CONSTRAINT collection_pins_pkey
+PRIMARY KEY (collection_id, pin_id);
+
+--Prevent duplicate memberships in a collection
+ALTER TABLE public.collection_members
+ADD CONSTRAINT collection_members_pkey
+PRIMARY KEY (collection_id, user_id);
+
+--Only allow supported member roles
+ALTER TABLE public.collection_members
+ADD CONSTRAINT collection_members_role_check
+CHECK (role IN ('collaborator', 'viewer'));
+
+--Only allow private or public collections
+ALTER TABLE public.collections
+ADD CONSTRAINT collections_visibility_check
+CHECK (visibility IN ('private', 'public'));
+
 ALTER TABLE "pins" ADD FOREIGN KEY ("creator_id") REFERENCES "profiles" ("id") DEFERRABLE INITIALLY IMMEDIATE;
 
 ALTER TABLE "collections" ADD FOREIGN KEY ("owner_id") REFERENCES "profiles" ("id") DEFERRABLE INITIALLY IMMEDIATE;
