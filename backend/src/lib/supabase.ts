@@ -1,12 +1,17 @@
 import { createClient } from "@supabase/supabase-js";
 import { env } from "../config/env.js";
+<<<<<<< HEAD
 import type { Database } from "../types/database.types.js";
+=======
+import type { Database } from "./database.types.js";
+
+>>>>>>> origin/main
 const serverOptions = {
   auth: { autoRefreshToken: false, persistSession: false },
 };
 
 // Uses the secret key (sb_secret_...): bypasses RLS and can call auth.admin.*. Server-side only.
-export const supabaseAdmin = createClient(
+export const supabaseAdmin = createClient<Database>(
   env.supabaseUrl,
   env.supabaseSecretKey,
   serverOptions,
