@@ -31,21 +31,16 @@ export async function createPin(
   try {
     const user = requireUser(req, res);
     if (!user) return;
-
     const { title } = req.body;
-
     if (typeof title !== "string" || title.trim() === "") {
       res.status(400).json({ error: "Title is required." });
       return;
     }
-
     const input = {
       ...req.body,
       title: title.trim(),
     };
-
     const pin = await pinsService.createPin(user.id, input);
-
     res.status(201).json(pin);
   } catch (error) {
     next(error);
