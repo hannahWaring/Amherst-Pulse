@@ -1,6 +1,4 @@
-//this is just a basic structure so it
-//does not really handle most errors yet, need to implement middleware
-//does not authenticate if the one who wants to edit is the authorized
+import { forbidden, notFound } from "../errors/AppError.js";
 import {pinsRepository,} from "../repositories/pinRepository.js";
 import type {
   CreatePinInput,
@@ -12,7 +10,9 @@ export const pinsService = {
   ) {return await pinsRepository.create(creatorId, input);},
 
   async getPinsByCollection(collectionId: string) {
-    return await pinsRepository.findAllByCollection(collectionId);
+    const pin= await pinsRepository.findAllByCollection(collectionId);
+    if (!pin) throw notFound("Pin not found");
+    return pin;
   },
 
   async getPinById(id: string) {
@@ -23,18 +23,30 @@ export const pinsService = {
     return pin;
   },
 
-  async updatePin(id: string, input: UpdatePinInput) {
+  async updatePin(userid:string,id: string, input: UpdatePinInput) {
     const existingPin = await pinsRepository.findById(id);
     if (!existingPin) {
       throw new Error("Pin not found");
     }
+  const existing = await this.getPinById(id);
+  //this needs to be reconsidered(?) could, say the collection owner edit the pin?
+  if (existing.creator_id !== userid) {
+    throw forbidden("Only the creator can edit this pin");
+  }
+  //need to check if the input is valid here
     return await pinsRepository.update(id, input);
   },
-  async deletePin(id: string) {
+
+  async deletePin(userId:string,id: string) {
     const existingPin = await pinsRepository.findById(id);
     if (!existingPin) {
       throw new Error("Pin not found");
     }
+      const existing = await this.getPinById(id);
+    //same as the one in updatePin do we check by owner of collection instead?
+  if (existing.creator_id !== userId) {
+    throw forbidden("Only the creator can delete this pin");
+  }
     await pinsRepository.delete(id);
   },
 };
