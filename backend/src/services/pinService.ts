@@ -1,4 +1,7 @@
 //validator unfinished
+//a lot of these might need to be discussed during meeting or with Dia about how she implemented the collection
+//mainly about who have rights to edit a pin
+//and where do we verify if a user could create a pin or not
 import { forbidden, notFound } from "../errors/AppError.js";
 import {pinsRepository,} from "../repositories/pinRepository.js";
 import type {

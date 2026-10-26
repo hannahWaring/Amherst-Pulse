@@ -1,12 +1,12 @@
+//do we use supabaseAdmin or do we use supabasePublic
 import { randomUUID } from "crypto";
 import { supabaseAdmin } from "../lib/supabase.js";
 import type {Pin,CreatePinInput,UpdatePinInput } from "../types/pins.js";
 const TABLE ="pins";
-
 export const pinsRepository = {
   async create(creatorId: string,input: CreatePinInput): Promise<Pin> {
-    const { data, error } = await supabaseAdmin.from(TABLE).insert({
-    id: randomUUID(),creator_id: creatorId,...input,}).select("*").single();
+    const { data, error } = await supabaseAdmin.from(TABLE).insert({...input,
+    id: randomUUID(),creator_id: creatorId,}).select("*").single();
     if (error) throw error;
     return data as Pin;
   },
