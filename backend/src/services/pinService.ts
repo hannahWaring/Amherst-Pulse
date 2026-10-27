@@ -8,10 +8,17 @@ import type {
   CreatePinInput,
   UpdatePinInput,
 } from "../types/pins.js";
+import {
+  validateCreatePin,
+  validateUpdatePin,
+} from "../validators/pinValidator.js";
 
 export const pinsService = {
   async createPin(creatorId: string,input: CreatePinInput,
-  ) {return await pinsRepository.create(creatorId, input);},
+  ) {
+    validateCreatePin(input);
+    return await pinsRepository.create(creatorId, input);
+  },
 
   async getPinsByCollection(collectionId: string) {
     return pinsRepository.findAllByCollection(collectionId);
@@ -31,7 +38,7 @@ export const pinsService = {
   if (existing.creator_id !== userid) {
     throw forbidden("Only the creator can edit this pin");
   }
-  //need to check if the input is valid here
+  validateUpdatePin(input);
     return await pinsRepository.update(id, input);
   },
 
