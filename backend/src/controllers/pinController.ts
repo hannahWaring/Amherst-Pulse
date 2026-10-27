@@ -1,17 +1,18 @@
 import type { Request, Response, NextFunction } from "express";
 import { pinsService } from "../services/pinService.js";
 
-// Get the authenticated user attached by authenticate middleware.
-function requireUser(req: Request, res: Response) {
-  //this need to be changed according to how the authentication looks
-  // @ts-expect-error req.user is not typed until the authenticate middleware is added
-  const user = req.user;
-  if (!user) {
-    res.status(401).json({ error: "Authentication required." });
-    return null;
-  }
-  return user;
-}
+// 401 checks commented out for now: the authenticate middleware already
+// rejects unauthenticated requests before they reach these handlers.
+// // Get the authenticated user attached by authenticate middleware.
+// function requireUser(req: Request, res: Response) {
+//   //this need to be changed according to how the authentication looks
+//   const user = req.user;
+//   if (!user) {
+//     res.status(401).json({ error: "Authentication required." });
+//     return null;
+//   }
+//   return user;
+// }
 
 // Check whether a string is a valid UUID.
 function isValidUUID(id: unknown): id is string {
@@ -30,8 +31,9 @@ export async function createPin(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const user = requireUser(req, res);
-    if (!user) return;
+    // const user = requireUser(req, res);
+    // if (!user) return;
+    const user = req.user!;
     const { title } = req.body;
     if (typeof title !== "string" || title.trim() === "") {
       res.status(400).json({ error: "Title is required." });
@@ -100,8 +102,9 @@ export async function updatePin(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const user = requireUser(req, res);
-    if (!user) return;
+    // const user = requireUser(req, res);
+    // if (!user) return;
+    const user = req.user!;
 
     const id = req.params.id;
 
@@ -112,8 +115,7 @@ export async function updatePin(
 
     if (
       req.body.title !== undefined &&
-      (typeof req.body.title !== "string" ||
-        req.body.title.trim() === "")
+      (typeof req.body.title !== "string" || req.body.title.trim() === "")
     ) {
       res.status(400).json({
         error: "Title must be a non-empty string.",
@@ -143,8 +145,9 @@ export async function deletePin(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const user = requireUser(req, res);
-    if (!user) return;
+    // const user = requireUser(req, res);
+    // if (!user) return;
+    const user = req.user!;
 
     const id = req.params.id;
 

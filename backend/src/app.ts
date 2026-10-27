@@ -3,6 +3,7 @@ import express, { type ErrorRequestHandler } from "express";
 import { env } from "./config/env.js";
 import { supabaseAdmin } from "./lib/supabase.js";
 import { authRouter } from "./routes/auth.js";
+import pinRouter from "./routes/pinRoute.js";
 
 export const app = express();
 
@@ -22,6 +23,7 @@ app.get("/health", async (_req, res) => {
 });
 
 app.use("/auth", authRouter);
+app.use("/pins", pinRouter);
 
 app.use((_req, res) => {
   res.status(404).json({ error: "Not found" });
