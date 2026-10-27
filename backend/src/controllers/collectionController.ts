@@ -1,4 +1,5 @@
-import { collectionService } from "../services/collectionService.js";
+// Commented out until collectionService is implemented.
+// import { collectionService } from "../services/collectionService.js";
 import type {
   CreatePinInput,
   UpdatePinInput,

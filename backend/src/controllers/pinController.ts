@@ -4,6 +4,7 @@ import { pinsService } from "../services/pinService.js";
 // Get the authenticated user attached by authenticate middleware.
 function requireUser(req: Request, res: Response) {
   //this need to be changed according to how the authentication looks
+  // @ts-expect-error req.user is not typed until the authenticate middleware is added
   const user = req.user;
   if (!user) {
     res.status(401).json({ error: "Authentication required." });
