@@ -2,12 +2,14 @@ import React from 'react';
 import {House, MapPin, Folder, Plus} from 'lucide-react';
 
 const menuItems = [
-    {label: 'Home', icon: House},
-    {label: 'My Pins', icon: MapPin},
-    {label: 'Collections', icon: Folder}
+    {label: 'Home', icon: House, route: "/home"},
+    {label: 'My Pins', icon: MapPin, route: "/pins"},
+    {label: 'Collections', icon: Folder, route: "/collections"}
 ];
 
 export default function Sidebar({onCreatePin, onCreateCollection}) {
+    const currentPath = window.location.pathname;
+
     return (
         <aside className="w-64 min-h-[calc(100vh-4rem)] shrink-0 border-r border-slate-200 bg-white p-4">
             <nav className = "flex flex-col gap-2">
@@ -15,10 +17,11 @@ export default function Sidebar({onCreatePin, onCreateCollection}) {
                 const Icon = item.icon;
                 // label with icon
                 return  (
-                    <div
-                    key = {item.label}
+                    <a
+                    href={item.route}
+                    key={item.label}
                     className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium ${
-                       item.label === 'Home'
+                       currentPath === item.route || (item.label === 'Home' && currentPath === '/')
                        ? 'bg-violet-100 text-violet-700'
                        : 'text-slate-600'
                     }`}
@@ -26,7 +29,7 @@ export default function Sidebar({onCreatePin, onCreateCollection}) {
                     {/* label */}
                        <Icon className="h-5 w-5" />
                        {item.label}
-                    </div>
+                    </a>
                 );
 
             })}
