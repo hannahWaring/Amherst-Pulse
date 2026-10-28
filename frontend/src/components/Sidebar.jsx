@@ -7,20 +7,54 @@ const menuItems = [
     {label: 'Collections', icon: Folder}
 ];
 
-export default function Sidebar({onCreatePin, onCreateCollection}) {
+export default function Sidebar({onCreatePin, onCreateCollection, onMyPins, isMyPinOpen, onHome}) {
     return (
         <aside className="w-64 min-h-[calc(100vh-4rem)] shrink-0 border-r border-slate-200 bg-white p-4">
             <nav className = "flex flex-col gap-2">
             {menuItems.map((item) => {
                 const Icon = item.icon;
+                if (item.label === 'My Pins') {
+                       return (
+                         <button
+                       key = {item.label}
+                        type = "button"
+                        onClick = {onMyPins }
+                          className={ `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium" ${
+                            isMyPinOpen 
+                            ? 'bg-violet-100 text-violet-700'
+                            : 'text-slate-600'
+                        }`}
+                        >
+                        <Icon className="h-5 w-5" />
+                        My Pins
+                        </button>) 
+                    }
+                if (item.label === 'Home') {
+                    return (
+                        <button
+                        key = {item.label}
+                        type = "button"
+                        onClick = {onHome}
+                        className={ `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium" ${
+                                                   item.label === 'Home' && isMyPinOpen === false
+                       ? 'bg-violet-100 text-violet-700'
+                       : 'text-slate-600'
+                        }`}
+                        >
+                    <Icon className="h-5 w-5" />
+                        Home
+                        </button>
+                    )
+                }
                 // label with icon
                 return  (
                     <div
                     key = {item.label}
                     className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium ${
-                       item.label === 'Home'
+                        item.label === 'Home' && isMyPinOpen === false
                        ? 'bg-violet-100 text-violet-700'
                        : 'text-slate-600'
+                        }
                     }`}
                     > 
                     {/* label */}
