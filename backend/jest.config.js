@@ -29,6 +29,10 @@ export default {
     // No Docker or local Supabase needed.
     { ...shared, displayName: "unit", roots: ["<rootDir>/tests/unit"] },
     // Run against the local Supabase stack (`npx supabase start`).
-    { ...shared, displayName: "integration", roots: ["<rootDir>/tests/integration"] },
+    {
+      ...shared,
+      displayName: "integration",
+      roots: ["<rootDir>/tests/integration"],
+    },
   ],
 };
