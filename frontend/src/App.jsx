@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import WelcomePage from './pages/Welcomepage';
 import DefaultPage from './pages/DefaultPage';
 import ViewCollections from './pages/ViewCollections';
+import SettingsPage from './pages/SettingsPage';
 
 export default function App() {
   const [isStarted, setIsStarted] = useState(false);
@@ -21,6 +22,7 @@ export default function App() {
 
   }
   if (path === '/collections') return <ViewCollections />;
+  if (path === '/settings') return <SettingsPage />;
   if (path === '/home') return <DefaultPage />;
   return <DefaultPage />
   
