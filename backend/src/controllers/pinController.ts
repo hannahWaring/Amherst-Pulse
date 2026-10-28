@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
+import { badRequest } from "../errors/AppError.js";
 import { pinsService } from "../services/pinService.js";
 
 // 401 checks commented out for now: the authenticate middleware already
@@ -34,13 +35,15 @@ export async function createPin(
     // const user = requireUser(req, res);
     // if (!user) return;
     const user = req.user!;
-    const { title } = req.body;
+    // req.body is undefined in Express 5 when no JSON body was sent.
+    const body = req.body ?? {};
+    const { title } = body;
     if (typeof title !== "string" || title.trim() === "") {
-      res.status(400).json({ error: "Title is required." });
+      next(badRequest("Title is required."));
       return;
     }
     const input = {
-      ...req.body,
+      ...body,
       title: title.trim(),
     };
     const pin = await pinsService.createPin(user.id, input);
@@ -60,7 +63,7 @@ export async function listPins(
     const collectionId = req.params.collectionId;
 
     if (!isValidUUID(collectionId)) {
-      res.status(400).json({ error: "Invalid collection ID." });
+      next(badRequest("Invalid collection ID."));
       return;
     }
 
@@ -82,7 +85,7 @@ export async function getPin(
     const id = req.params.id;
 
     if (!isValidUUID(id)) {
-      res.status(400).json({ error: "Invalid pin ID." });
+      next(badRequest("Invalid pin ID."));
       return;
     }
 
@@ -109,24 +112,25 @@ export async function updatePin(
     const id = req.params.id;
 
     if (!isValidUUID(id)) {
-      res.status(400).json({ error: "Invalid pin ID." });
+      next(badRequest("Invalid pin ID."));
       return;
     }
 
+    // req.body is undefined in Express 5 when no JSON body was sent.
+    const body = req.body ?? {};
+
     if (
-      req.body.title !== undefined &&
-      (typeof req.body.title !== "string" || req.body.title.trim() === "")
+      body.title !== undefined &&
+      (typeof body.title !== "string" || body.title.trim() === "")
     ) {
-      res.status(400).json({
-        error: "Title must be a non-empty string.",
-      });
+      next(badRequest("Title must be a non-empty string."));
       return;
     }
 
     const input = {
-      ...req.body,
-      ...(typeof req.body.title === "string"
-        ? { title: req.body.title.trim() }
+      ...body,
+      ...(typeof body.title === "string"
+        ? { title: body.title.trim() }
         : {}),
     };
 
@@ -152,7 +156,7 @@ export async function deletePin(
     const id = req.params.id;
 
     if (!isValidUUID(id)) {
-      res.status(400).json({ error: "Invalid pin ID." });
+      next(badRequest("Invalid pin ID."));
       return;
     }
 

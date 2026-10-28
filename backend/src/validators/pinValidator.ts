@@ -1,6 +1,13 @@
 import { badRequest } from "../errors/AppError.js";
 import type { CreatePinInput, UpdatePinInput } from "../types/pins.js";
 
+// TODO: validation rules still need to be decided and added to the lists below.
+// Until then every input passes, and bad values only get caught by the
+// database (sent as generic 400s by the error handler). Candidates so far:
+//   - ends_at must be after starts_at
+//   - latitude / longitude must be numbers in range
+//   - reject (or drop) fields that are not pin columns
+
 // A rule returns an error message if the input breaks it, or null if it passes.
 type Rule<T> = (input: T) => string | null;
 

@@ -1,7 +1,9 @@
 import cors from "cors";
-import express, { type ErrorRequestHandler } from "express";
+import express from "express";
 import { env } from "./config/env.js";
+import { notFound } from "./errors/AppError.js";
 import { supabaseAdmin } from "./lib/supabase.js";
+import { errorHandler } from "./middleware/errorHandler.js";
 import { authRouter } from "./routes/auth.js";
 import pinRouter from "./routes/pinRoute.js";
 
@@ -25,12 +27,8 @@ app.get("/health", async (_req, res) => {
 app.use("/auth", authRouter);
 app.use("/pins", pinRouter);
 
-app.use((_req, res) => {
-  res.status(404).json({ error: "Not found" });
+app.use((_req, _res, next) => {
+  next(notFound());
 });
 
-const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
-  console.error(err);
-  res.status(500).json({ error: "Internal server error" });
-};
 app.use(errorHandler);
