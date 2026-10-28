@@ -4,12 +4,21 @@ Guidance for any AI coding agent working in this repository (tool-agnostic). Too
 
 ## Project status
 
-This is a CS320 course project. `frontend/` and `database/` are still empty (`.gitkeep` only). CI (`.github/workflows/ci.yml`) installs and builds the backend. Fill in commands below as each part of the stack is scaffolded.
+This is a CS320 course project. CI (`.github/workflows/ci.yml`) installs and builds the backend, then runs its unit and integration tests. Fill in commands below as each part of the stack grows.
 
 Stack:
-- **Backend:** Express 5 + TypeScript (Node.js, ESM) — scaffolded in `backend/`
+- **Backend:** Express 5 + TypeScript 7 (Node.js, ESM) — in `backend/`
+- **Frontend:** React + Vite + Tailwind CSS — in `frontend/`
 - **Auth:** Supabase — usernames are mapped to undeliverable `<username>@<AUTH_EMAIL_DOMAIN>` emails; no email confirmation
-- **Database:** PostgreSQL (Supabase-hosted). All data access uses the `supabase-js` query builder (`supabaseAdmin.from(...)`); no direct Postgres connection
+- **Database:** PostgreSQL (Supabase-hosted). All data access uses the `supabase-js` query builder; no direct Postgres connection. Migrations live in `backend/supabase/migrations/`; `database/schema.sql` holds a copy of the schema. Whether repositories use `supabaseAdmin` (secret key, bypasses RLS) or a user-scoped client with RLS policies is still undecided — pins currently use `supabaseAdmin`
+
+### Backend structure (`backend/src/`)
+
+- Layers: `routes/` → `controllers/` → `services/` → `repositories/`, plus `middleware/`, `validators/`, `errors/`, `types/`, `lib/`, `config/`
+- File names follow `<feature><Layer>.ts` (e.g. `pinRoute.ts`, `pinController.ts`, `pinService.ts`, `pinRepository.ts`, `pinValidator.ts`)
+- `middleware/authenticate.ts` checks the `Authorization: Bearer <token>` header with Supabase (`getUser`) and sets `req.user` (typed in `types/express.d.ts`). Routers opt in with `router.use(authenticate)`
+- Errors: throw or `next()` an `AppError` (helpers in `errors/AppError.ts`); `middleware/errorHandler.ts` sends every error as `{ "error": { "code", "message", "details"? } }`
+- `src/types/database.types.ts` is generated (`npm run gen:types`) — don't edit it by hand
 
 ### Backend commands (run in `backend/`)
 
@@ -22,6 +31,16 @@ Stack:
   - `npm run test:unit` — `backend/tests/unit/`; no Docker or local Supabase needed
   - `npm run test:integration` — `backend/tests/integration/`; needs Docker running. Starts the local Supabase if needed and resets its database first (both skipped in CI, which starts its own)
 - `npm run db:sync` — after a schema change in the hosted dashboard: pulls a new migration, resets the local database, and regenerates `src/types/database.types.ts`
+
+### Frontend commands (run in `frontend/`)
+
+- `npm run dev` — Vite dev server
+- `npm run build` — production build
+- `npm run lint` — ESLint
+
+### Formatting (run at the repo root)
+
+- `npm run prettier` — runs `prettier --write .` on the whole repo; `.prettierignore` skips lockfiles, `dist/`, the generated database types, and Supabase CLI temp files
 
 ## AI use rules for this course (CS320)
 
