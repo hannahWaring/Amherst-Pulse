@@ -92,8 +92,6 @@ function toAppError(err: unknown): AppError | null {
 // Registered last in app.ts. Known errors are sent with their own status and
 // code; anything else is an unexpected error and becomes a generic 500.
 export const errorHandler: ErrorRequestHandler = (err, _req, res, next) => {
-  console.error(err);
-
   // If a response has already started, let Express close the connection.
   if (res.headersSent) {
     next(err);
@@ -114,6 +112,8 @@ export const errorHandler: ErrorRequestHandler = (err, _req, res, next) => {
     return;
   }
 
+  // Only unexpected 5xx errors are logged
+  console.error(err);
   res.status(500).json({
     error: { code: "internal_error", message: "Internal server error" },
   });
