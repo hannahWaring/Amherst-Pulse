@@ -10,16 +10,43 @@ const HTTP_ERROR_CODES: Record<number, string> = {
 
 // Postgres / PostgREST error codes caused by the request itself rather than
 // a server fault. Anything not listed here stays a 500.
-const DB_ERRORS: Record<string, { status: number; code: string; message: string }> = {
-  "22P02": { status: 400, code: "bad_request", message: "Invalid value in request." }, // invalid input syntax (e.g. text in a number column)
-  "23502": { status: 400, code: "bad_request", message: "Missing required field." }, // not-null violation
-  "23514": { status: 400, code: "bad_request", message: "Invalid value in request." }, // check constraint violation
-  "23505": { status: 409, code: "conflict", message: "Resource already exists." }, // unique violation
+const DB_ERRORS: Record<
+  string,
+  { status: number; code: string; message: string }
+> = {
+  "22P02": {
+    status: 400,
+    code: "bad_request",
+    message: "Invalid value in request.",
+  }, // invalid input syntax (e.g. text in a number column)
+  "23502": {
+    status: 400,
+    code: "bad_request",
+    message: "Missing required field.",
+  }, // not-null violation
+  "23514": {
+    status: 400,
+    code: "bad_request",
+    message: "Invalid value in request.",
+  }, // check constraint violation
+  "23505": {
+    status: 409,
+    code: "conflict",
+    message: "Resource already exists.",
+  }, // unique violation
   // NOTE: foreign key violations are 400 for now; could change later (e.g. 404
   // when the referenced row is missing, or 409 when deleting a row still in use).
-  "23503": { status: 400, code: "bad_request", message: "Referenced resource does not exist." }, // foreign key violation
+  "23503": {
+    status: 400,
+    code: "bad_request",
+    message: "Referenced resource does not exist.",
+  }, // foreign key violation
   PGRST116: { status: 404, code: "not_found", message: "Not found" }, // .single() matched no rows
-  PGRST204: { status: 400, code: "bad_request", message: "Unknown field in request." }, // column does not exist
+  PGRST204: {
+    status: 400,
+    code: "bad_request",
+    message: "Unknown field in request.",
+  }, // column does not exist
 };
 
 // Turns errors from libraries into AppErrors where the cause is known;
@@ -34,7 +61,11 @@ function toAppError(err: unknown): AppError | null {
 
   // express.json() errors (malformed JSON, body too large, ...) carry their
   // own 4xx status and mark client-safe messages with `expose`.
-  const httpError = err as { status?: unknown; expose?: unknown; message?: unknown };
+  const httpError = err as {
+    status?: unknown;
+    expose?: unknown;
+    message?: unknown;
+  };
   if (
     typeof httpError.status === "number" &&
     httpError.status >= 400 &&
@@ -75,7 +106,9 @@ export const errorHandler: ErrorRequestHandler = (err, _req, res, next) => {
       error: {
         code: appError.code,
         message: appError.message,
-        ...(appError.details !== undefined ? { details: appError.details } : {}),
+        ...(appError.details !== undefined
+          ? { details: appError.details }
+          : {}),
       },
     });
     return;

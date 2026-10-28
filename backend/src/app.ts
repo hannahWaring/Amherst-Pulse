@@ -4,7 +4,7 @@ import { env } from "./config/env.js";
 import { notFound } from "./errors/AppError.js";
 import { supabaseAdmin } from "./lib/supabase.js";
 import { errorHandler } from "./middleware/errorHandler.js";
-import { authRouter } from "./routes/auth.js";
+import { authRouter } from "./routes/authRoute.js";
 import pinRouter from "./routes/pinRoute.js";
 
 export const app = express();
@@ -14,7 +14,10 @@ app.use(express.json());
 
 app.get("/health", async (_req, res) => {
   try {
-    const { error } = await supabaseAdmin.from("profiles").select("id").limit(0);
+    const { error } = await supabaseAdmin
+      .from("profiles")
+      .select("id")
+      .limit(0);
     if (error) {
       throw error;
     }

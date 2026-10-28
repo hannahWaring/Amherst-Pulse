@@ -2,19 +2,6 @@ import type { Request, Response, NextFunction } from "express";
 import { badRequest } from "../errors/AppError.js";
 import { pinsService } from "../services/pinService.js";
 
-// 401 checks commented out for now: the authenticate middleware already
-// rejects unauthenticated requests before they reach these handlers.
-// // Get the authenticated user attached by authenticate middleware.
-// function requireUser(req: Request, res: Response) {
-//   //this need to be changed according to how the authentication looks
-//   const user = req.user;
-//   if (!user) {
-//     res.status(401).json({ error: "Authentication required." });
-//     return null;
-//   }
-//   return user;
-// }
-
 // Check whether a string is a valid UUID.
 function isValidUUID(id: unknown): id is string {
   return (
@@ -129,9 +116,7 @@ export async function updatePin(
 
     const input = {
       ...body,
-      ...(typeof body.title === "string"
-        ? { title: body.title.trim() }
-        : {}),
+      ...(typeof body.title === "string" ? { title: body.title.trim() } : {}),
     };
 
     const pin = await pinsService.updatePin(user.id, id, input);
