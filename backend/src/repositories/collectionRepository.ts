@@ -1,4 +1,3 @@
-
 import { randomUUID } from "crypto";
 import { supabasePublic } from "../lib/supabase.js";
 import type {
@@ -14,7 +13,7 @@ const TABLE = "collections";
 export const collectionsRepository = {
   async create(
     ownerId: string,
-    input: CreateCollectionInput
+    input: CreateCollectionInput,
   ): Promise<Collection> {
     const { data, error } = await supabasePublic
       .from(TABLE)
@@ -32,7 +31,10 @@ export const collectionsRepository = {
 
   // Get all collections owned by a user
   async findAllByOwner(ownerId: string): Promise<Collection[]> {
-    const { data, error } = await supabasePublic.from(TABLE).select("*").eq("owner_id", ownerId);
+    const { data, error } = await supabasePublic
+      .from(TABLE)
+      .select("*")
+      .eq("owner_id", ownerId);
     if (error) throw error;
     return (data ?? []) as Collection[];
   },
@@ -50,7 +52,11 @@ export const collectionsRepository = {
 
   // Get a collection by its ID.
   async findById(id: string): Promise<Collection | null> {
-    const { data, error } = await supabasePublic.from(TABLE).select("*").eq("id", id).maybeSingle();
+    const { data, error } = await supabasePublic
+      .from(TABLE)
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
     if (error) throw error;
     return data as Collection | null;
   },
@@ -68,10 +74,7 @@ export const collectionsRepository = {
 
   // delete a collection
   async delete(id: string): Promise<void> {
-    const { error } = await supabasePublic
-      .from(TABLE)
-      .delete()
-      .eq("id", id);
+    const { error } = await supabasePublic.from(TABLE).delete().eq("id", id);
     if (error) throw error;
   },
 

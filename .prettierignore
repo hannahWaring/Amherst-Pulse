@@ -1,0 +1,8 @@
+# Generated files
+**/package-lock.json
+**/dist/
+backend/src/types/database.types.ts
+
+# Supabase CLI temp files
+backend/supabase/.temp/
+backend/supabase/.branches/
