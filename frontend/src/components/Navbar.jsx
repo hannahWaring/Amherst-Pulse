@@ -11,7 +11,7 @@ export default function Navbar() {
                 <MapPin className="h-5 w-5 text-white" />
             </div>
             <span className = "text-xl font-bold text-[#1f2757] dark:text-white" >
-                Campus <span className="text-[#6b4df6]">Pulze</span>
+                Amherst <span className="text-[#6b4df6]">Pulse</span>
             </span>
         </div>
 
