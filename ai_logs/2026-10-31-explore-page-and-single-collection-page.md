@@ -84,7 +84,7 @@ Done. Files: CollectionPage.jsx (new), data/publicCollections.js (new), ExploreP
 
 ---
 
-**User:** wait fuck i think i pushed it without adding the AI logs. my main takeaway was to take inspiration from popular sites which use standardised templates and try to make that design fit into your current design and make sure all pages designed, esp if multiple people work on it, follow the same format and overall aestehtic
+**User:** wait i think i pushed it without adding the AI logs. my main takeaway was to take inspiration from popular sites which use standardised templates and try to make that design fit into your current design and make sure all pages designed, esp if multiple people work on it, follow the same format and overall aestehtic
 
 also sometimes its okay to do a little bit more than what you have been assigned instead of taking it on your ego and being like hell nah ill only do what ive been assgined, just do a lil extra so that your entire work looks fully cohesive together
 
