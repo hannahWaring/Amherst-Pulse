@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import {House, MapPin, Folder, Plus, ChevronDown, Settings} from 'lucide-react';
+import {House, Compass, MapPin, Folder, Plus, ChevronDown, Settings} from 'lucide-react';
 
 const menuItems = [
     {label: 'Home', icon: House, route: "/home"},
+    {label: 'Explore', icon: Compass, route: "/explore"},
     {label: 'My Pins', icon: MapPin, route: "/pins"},
     {label: 'Collections', icon: Folder, route: "/collections"},
     {label: 'Settings', icon: Settings, route: "/settings"}
@@ -10,8 +11,9 @@ const menuItems = [
 
 export default function Sidebar({onCreatePin, onCreateCollection}) {
     const currentPath = window.location.pathname;
-    const isCollectionsPage = currentPath === '/collections';
+    const isCollectionsPage = currentPath.startsWith('/collections');
     const isSettingsPage = currentPath === '/settings';
+    const isExplorePage = currentPath === '/explore';
     const [isCreateMenuOpen, setIsCreateMenuOpen] = useState(false);
 
     return (
@@ -76,7 +78,7 @@ export default function Sidebar({onCreatePin, onCreateCollection}) {
   )}
 </div>
 
-            {!isCollectionsPage && !isSettingsPage && <>
+            {!isCollectionsPage && !isSettingsPage && !isExplorePage && <>
             <div className = "mt-10">
                  <h3 className="mb-4 text-sm font-bold text-[#1f2757]">
                     Filters
