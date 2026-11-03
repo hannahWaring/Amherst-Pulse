@@ -1,15 +1,23 @@
 import React, { useState } from 'react';
 import {House, Compass, MapPin, Folder, Plus, ChevronDown, Settings} from 'lucide-react';
+import { publicCollections } from '../data/publicCollections';
 
 const menuItems = [
     {label: 'Home', icon: House, route: "/home"},
     {label: 'Explore', icon: Compass, route: "/explore"},
     {label: 'My Pins', icon: MapPin, route: "/pins"},
-    {label: 'Collections', icon: Folder, route: "/collections"},
+    {label: 'My Collections', icon: Folder, route: "/collections"},
     {label: 'Settings', icon: Settings, route: "/settings"}
 ];
 
-export default function Sidebar({onCreatePin, onCreateCollection}) {
+export default function Sidebar({
+    onCreatePin,
+    onCreateCollection,
+    selectedCollectionIds = publicCollections.map((collection) => collection.id),
+    onCollectionToggle,
+    selectedRso = '',
+    onRsoChange,
+}) {
     const currentPath = window.location.pathname;
     const isCollectionsPage = currentPath.startsWith('/collections');
     const isSettingsPage = currentPath === '/settings';
@@ -88,29 +96,34 @@ export default function Sidebar({onCreatePin, onCreateCollection}) {
                     RSO/Orrganization
                  </label>
 
-                 <select className="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-700">
-                    <option> All RSOs</option>
+                 <select
+                    value={selectedRso}
+                    onChange={(event) => onRsoChange?.(event.target.value)}
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-700"
+                 >
+                    <option value="">All RSOs</option>
+                    {[...new Set(publicCollections.map((collection) => collection.rso).filter(Boolean))].map((rso) => (
+                        <option key={rso} value={rso}>{rso}</option>
+                    ))}
                  </select>
             </div>
 
             {/*Collections */}
             <div className = "mt-8">
                 <h3 className="mb-4 text-sm font-bold text-[#1f2757]">
-                    Collections
+                    My Collections
                 </h3>
 
-                {[
-                    {id: "study", title: "Study spots", color: "bg-red-100"},
-                    {id: "events", title: "Club events", color: "bg-blue-100"},
-                ].map((collection) => (
+                {publicCollections.map((collection) => (
                     <label
                         key={collection.id}
       className="mb-3 flex cursor-pointer items-center gap-3 text-sm text-slate-700"
                     >
-                        <input type = "checkbox" defaultChecked />
-                        <span
-                            className="h-3 w-3 rounded-sm"
-                            style={{ backgroundColor: collection.color }}
+                        <input
+                            type="checkbox"
+                            checked={selectedCollectionIds.includes(collection.id)}
+                            onChange={() => onCollectionToggle?.(collection.id)}
+                            style={{ accentColor: collection.color }}
                         />
                         {collection.title}
                     </label>

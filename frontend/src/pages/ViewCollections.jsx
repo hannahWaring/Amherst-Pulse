@@ -55,6 +55,8 @@ export default function ViewCollections() {
               {collections.map((collection) => (
                 <Card
                   key={collection.id}
+                  component="a"
+                  href={`/collections/${collection.id}?from=collections`}
                   sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, borderRadius: 3 }}
                 >
                   <CardMedia

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardMedia, Typography } from '@mui/material';
-import { ArrowLeft, MapPin } from 'lucide-react';
+import { ArrowLeft, MapPin, Pencil } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
 import MapGGAPI from '../components/map_gg_api';
@@ -11,8 +11,21 @@ import { publicCollections } from '../data/publicCollections';
 export default function CollectionPage({ collectionId }) {
   const [isCreatePinOpen, setIsCreatePinOpen] = useState(false);
   const [isCreateCollectionOpen, setIsCreateCollectionOpen] = useState(false);
+  const [isEditCollectionOpen, setIsEditCollectionOpen] = useState(false);
+  const [collection, setCollection] = useState(() =>
+    publicCollections.find((item) => item.id === collectionId)
+  );
 
-  const collection = publicCollections.find((c) => c.id === collectionId);
+  useEffect(() => {
+    setCollection(publicCollections.find((item) => item.id === collectionId));
+  }, [collectionId]);
+
+  const currentUsername = 'janedoe';
+  const canEditCollection = collection?.ownerUsername === currentUsername;
+  const backHref = new URLSearchParams(window.location.search).get('from') === 'collections'
+    ? '/collections'
+    : '/explore';
+  const backLabel = backHref === '/collections' ? 'Back to My Collections' : 'Back to Explore';
 
   return (
     <main className="flex h-screen flex-col overflow-hidden bg-[#F8F9FE]">
@@ -30,11 +43,11 @@ export default function CollectionPage({ collectionId }) {
           <div className="p-6 md:p-10 lg:min-h-0 lg:w-1/2 lg:overflow-y-auto">
             {/* Back to Explore */}
             <a
-              href="/explore"
+              href={backHref}
               className="inline-flex items-center gap-2 text-sm font-semibold text-[#6b4df6] hover:underline"
             >
               <ArrowLeft className="h-4 w-4" />
-              Back to Explore
+              {backLabel}
             </a>
 
             {!collection ? (
@@ -53,10 +66,23 @@ export default function CollectionPage({ collectionId }) {
                     alt={collection.title}
                     sx={{ width: { xs: '100%', xl: 240 }, height: { xs: 180, xl: 'auto' }, objectFit: 'cover' }}
                   />
-                  <CardContent sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', p: 3 }}>
-                    <Typography component="h1" variant="h5" sx={{ fontWeight: 700, color: '#1f2757' }}>
-                      {collection.title}
-                    </Typography>
+                  <CardContent sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', p: 3, flex: 1 }}>
+                    <div className="flex items-start justify-between gap-3">
+                      <Typography component="h1" variant="h5" sx={{ fontWeight: 700, color: '#1f2757' }}>
+                        {collection.title}
+                      </Typography>
+                      {canEditCollection && (
+                        <button
+                          type="button"
+                          onClick={() => setIsEditCollectionOpen(true)}
+                          className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                          aria-label="Edit collection"
+                        >
+                          <Pencil className="h-4 w-4" aria-hidden="true" />
+                          Edit
+                        </button>
+                      )}
+                    </div>
                     {collection.rso && (
                       <Typography variant="subtitle1" sx={{ mt: 0.5, color: '#6b4df6', fontWeight: 600 }}>
                         {collection.rso}
@@ -109,6 +135,17 @@ export default function CollectionPage({ collectionId }) {
 
         {isCreatePinOpen && <CreatePin onClose={() => setIsCreatePinOpen(false)} />}
         {isCreateCollectionOpen && <CreateCollection onClose={() => setIsCreateCollectionOpen(false)} />}
+        {isEditCollectionOpen && collection && (
+          <CreateCollection
+            mode="edit"
+            collection={collection}
+            onClose={() => setIsEditCollectionOpen(false)}
+            onSave={(updatedCollection) => {
+              Object.assign(collection, updatedCollection);
+              setCollection(updatedCollection);
+            }}
+          />
+        )}
       </div>
     </main>
   );

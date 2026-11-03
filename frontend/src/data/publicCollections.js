@@ -3,6 +3,8 @@
 export const publicCollections = [
   {
     id: 1,
+    ownerUsername: 'janedoe',
+    color: '#8B5CF6',
     title: 'Hiking Events',
     rso: 'UMOC',
     description: 'Upcoming events with UMOC.',
@@ -14,6 +16,8 @@ export const publicCollections = [
   },
   {
     id: 2,
+    ownerUsername: 'janedoe',
+    color: '#14B8A6',
     title: 'Math Events',
     rso: 'Recreational Math Club',
     description: 'Lectures and PSETs.',
@@ -25,6 +29,8 @@ export const publicCollections = [
   },
   {
     id: 3,
+    ownerUsername: 'janedoe',
+    color: '#F59E0B',
     title: 'Best Views',
     description: 'Outdoor spots with a great view.',
     image: '/isometric-3d-map.png',
@@ -36,6 +42,8 @@ export const publicCollections = [
   },
   {
     id: 4,
+    ownerUsername: 'janedoe',
+    color: '#EC4899',
     title: 'Late Night Study Spots',
     description: 'Places on campus that stay open late.',
     image: '/isometric-3d-map.png',
@@ -46,6 +54,8 @@ export const publicCollections = [
   },
   {
     id: 5,
+    ownerUsername: 'janedoe',
+    color: '#3B82F6',
     title: 'Coffee Around Amherst',
     description: 'Cafes in town and on campus.',
     image: '/isometric-3d-map.png',
@@ -57,6 +67,8 @@ export const publicCollections = [
   },
   {
     id: 6,
+    ownerUsername: 'janedoe',
+    color: '#EF4444',
     title: 'Hackathon Season',
     rso: 'HackUMass',
     description: 'Workshops, info sessions, and hack nights.',
