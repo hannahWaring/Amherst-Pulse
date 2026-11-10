@@ -42,6 +42,19 @@ CREATE TABLE "collection_members" (
 
 COMMENT ON COLUMN "collection_members"."role" IS 'collaborator or viewer';
 
+-- Remove the old collection permission field
+ALTER TABLE public.collections
+DROP COLUMN IF EXISTS viewer_can_add_pins;
+
+-- Change pin timestamps to timezone-aware timestamps
+ALTER TABLE public.pins
+ALTER COLUMN starts_at TYPE timestamptz,
+ALTER COLUMN ends_at TYPE timestamptz;
+
+-- Store the event's original timezone
+ALTER TABLE public.pins
+ADD COLUMN IF NOT EXISTS timezone varchar;
+
 
 -- prevent duplicate pins within the same collection
 ALTER TABLE public.collection_pins

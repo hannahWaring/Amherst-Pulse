@@ -24,16 +24,7 @@ export async function createPin(
     const user = req.user!;
     // req.body is undefined in Express 5 when no JSON body was sent.
     const body = req.body ?? {};
-    const { title } = body;
-    if (typeof title !== "string" || title.trim() === "") {
-      next(badRequest("Title is required."));
-      return;
-    }
-    const input = {
-      ...body,
-      title: title.trim(),
-    };
-    const pin = await pinsService.createPin(user.id, input);
+    const pin = await pinsService.createPin(user.id, body);
     res.status(201).json(pin);
   } catch (error) {
     next(error);
@@ -105,21 +96,7 @@ export async function updatePin(
 
     // req.body is undefined in Express 5 when no JSON body was sent.
     const body = req.body ?? {};
-
-    if (
-      body.title !== undefined &&
-      (typeof body.title !== "string" || body.title.trim() === "")
-    ) {
-      next(badRequest("Title must be a non-empty string."));
-      return;
-    }
-
-    const input = {
-      ...body,
-      ...(typeof body.title === "string" ? { title: body.title.trim() } : {}),
-    };
-
-    const pin = await pinsService.updatePin(user.id, id, input);
+    const pin = await pinsService.updatePin(user.id, id, body);
 
     res.status(200).json(pin);
   } catch (error) {
