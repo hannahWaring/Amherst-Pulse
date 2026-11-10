@@ -16,8 +16,13 @@ const builder = {
 const from = jest.fn<AnyFn>();
 
 jest.unstable_mockModule("../../src/lib/supabase.js", () => ({
+<<<<<<< HEAD
   supabasePublic: { },
   supabaseAdmin: {from},
+=======
+  supabasePublic: { from },
+  supabaseAdmin: {},
+>>>>>>> origin/backend-dev
   usernameToEmail: jest.fn(),
 }));
 
@@ -133,6 +138,7 @@ describe("pinsRepository", () => {
     });
   });
 
+<<<<<<< HEAD
   
 describe("delete", () => {
   test("deletes an existing pin", async () => {
@@ -177,3 +183,25 @@ describe("delete", () => {
   });
 });
 });
+=======
+  describe("delete", () => {
+    test("deletes by id and resolves to undefined", async () => {
+      builder.eq.mockResolvedValueOnce({ data: null, error: null });
+
+      await expect(pinsRepository.delete("p1")).resolves.toBeUndefined();
+
+      expect(from).toHaveBeenCalledWith("pins");
+      expect(builder.delete).toHaveBeenCalledTimes(1);
+      expect(builder.eq).toHaveBeenCalledWith("id", "p1");
+    });
+
+    // The real FK failure (pin still in a collection) needs an integration test;
+    // here we only check that such an error is passed through.
+    test("throws a foreign-key error from Supabase", async () => {
+      const fkError = { message: "violates foreign key constraint", code: "23503" };
+      builder.eq.mockResolvedValueOnce({ data: null, error: fkError });
+      await expect(pinsRepository.delete("p1")).rejects.toBe(fkError);
+    });
+  });
+});
+>>>>>>> origin/backend-dev
