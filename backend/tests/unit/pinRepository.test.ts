@@ -16,8 +16,13 @@ const builder = {
 const from = jest.fn<AnyFn>();
 
 jest.unstable_mockModule("../../src/lib/supabase.js", () => ({
+<<<<<<< HEAD
+  supabasePublic: { },
+  supabaseAdmin: {from},
+=======
   supabasePublic: { from },
   supabaseAdmin: {},
+>>>>>>> origin/backend-dev
   usernameToEmail: jest.fn(),
 }));
 
@@ -133,6 +138,52 @@ describe("pinsRepository", () => {
     });
   });
 
+<<<<<<< HEAD
+  
+describe("delete", () => {
+  test("deletes an existing pin", async () => {
+    builder.select.mockResolvedValueOnce({
+      data: [{ id: "p1" }],
+      error: null,
+    });
+
+    await expect(pinsRepository.delete("p1")).resolves.toBe(true);
+
+    expect(from).toHaveBeenCalledWith("pins");
+    expect(builder.delete).toHaveBeenCalledTimes(1);
+    expect(builder.eq).toHaveBeenCalledWith("id", "p1");
+    expect(builder.select).toHaveBeenCalledWith("id");
+  });
+
+  test("returns false when pin does not exist", async () => {
+    builder.select.mockResolvedValueOnce({
+      data: [],
+      error: null,
+    });
+
+    await expect(
+      pinsRepository.delete("missing")
+    ).resolves.toBe(false);
+  });
+
+  test("throws a foreign-key error from Supabase", async () => {
+    const fkError = {
+      message: "violates foreign key constraint",
+      code: "23503",
+    };
+
+    builder.select.mockResolvedValueOnce({
+      data: null,
+      error: fkError,
+    });
+
+    await expect(
+      pinsRepository.delete("p1")
+    ).rejects.toBe(fkError);
+  });
+});
+});
+=======
   describe("delete", () => {
     test("deletes by id and resolves to undefined", async () => {
       builder.eq.mockResolvedValueOnce({ data: null, error: null });
@@ -153,3 +204,4 @@ describe("pinsRepository", () => {
     });
   });
 });
+>>>>>>> origin/backend-dev
