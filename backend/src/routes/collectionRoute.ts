@@ -1,7 +1,12 @@
 import { Router } from "express";
 import { collectionController } from "../controllers/collectionController.js";
+import { authenticate } from "../middleware/authenticate.js";
 
 const router = Router();
+
+// Authenticate requests before reaching any collection controller.
+router.use(authenticate);
+
 // Create a collection
 router.post("/", collectionController.create);
 // Get all collections owned by the logged in user
