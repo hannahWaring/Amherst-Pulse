@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { supabasePublic } from "../lib/supabase.js";
+import { supabaseAdmin } from "../lib/supabase.js";
 import type {
   Collection,
   CollectionPin,
@@ -15,12 +15,12 @@ export const collectionsRepository = {
     ownerId: string,
     input: CreateCollectionInput,
   ): Promise<Collection> {
-    const { data, error } = await supabasePublic
+    const { data, error } = await supabaseAdmin
       .from(TABLE)
       .insert({
+        ...input,
         id: randomUUID(),
         owner_id: ownerId,
-        ...input,
       })
       .select("*")
       .single();
@@ -31,7 +31,7 @@ export const collectionsRepository = {
 
   // Get all collections owned by a user
   async findAllByOwner(ownerId: string): Promise<Collection[]> {
-    const { data, error } = await supabasePublic
+    const { data, error } = await supabaseAdmin
       .from(TABLE)
       .select("*")
       .eq("owner_id", ownerId);
@@ -41,7 +41,7 @@ export const collectionsRepository = {
 
   // Get all collections shared with a user (they (the user) is in collection_members)
   async findAllSharedWithUser(userId: string): Promise<Collection[]> {
-    const { data, error } = await supabasePublic.from("collection_members").select("collections(*)").eq("user_id", userId);
+    const { data, error } = await supabaseAdmin.from("collection_members").select("collections(*)").eq("user_id", userId);
     if (error) throw error;
     // Each row is { collections: {...} }; extract the collection data
     const rows = data ?? [];
@@ -52,7 +52,7 @@ export const collectionsRepository = {
 
   // Get a collection by its ID.
   async findById(id: string): Promise<Collection | null> {
-    const { data, error } = await supabasePublic
+    const { data, error } = await supabaseAdmin
       .from(TABLE)
       .select("*")
       .eq("id", id)
@@ -66,7 +66,7 @@ export const collectionsRepository = {
     id: string,
     input: UpdateCollectionInput
   ): Promise<Collection> {
-    const { data, error } = await supabasePublic.from(TABLE)
+    const { data, error } = await supabaseAdmin.from(TABLE)
       .update(input).eq("id", id).select("*").single();
     if (error) throw error;
     return data as Collection;
@@ -74,13 +74,13 @@ export const collectionsRepository = {
 
   // delete a collection
   async delete(id: string): Promise<void> {
-    const { error } = await supabasePublic.from(TABLE).delete().eq("id", id);
+    const { error } = await supabaseAdmin.from(TABLE).delete().eq("id", id);
     if (error) throw error;
   },
 
   // Get a user's role in a collection ("collaborator" or "viewer"), or null if they are not a member
   async findMemberRole(collectionId: string, userId: string): Promise<string | null> {
-    const { data, error } = await supabasePublic.from("collection_members").select("role")
+    const { data, error } = await supabaseAdmin.from("collection_members").select("role")
       .eq("collection_id", collectionId).eq("user_id", userId).maybeSingle();
     if (error) throw error;
     return data?.role ?? null;
@@ -88,7 +88,7 @@ export const collectionsRepository = {
 
   // Get the collection_pins row for a pin in a collection, or null if the pin is not in it
   async findCollectionPin(collectionId: string, pinId: string): Promise<CollectionPin | null> {
-    const { data, error } = await supabasePublic.from("collection_pins").select("*")
+    const { data, error } = await supabaseAdmin.from("collection_pins").select("*")
       .eq("collection_id", collectionId).eq("pin_id", pinId).maybeSingle();
     if (error) throw error;
     return data as CollectionPin | null;
@@ -96,7 +96,7 @@ export const collectionsRepository = {
 
   // Add a pin to a collection
   async addPin(collectionId: string, pinId: string, addedBy: string): Promise<CollectionPin> {
-    const { data, error } = await supabasePublic.from("collection_pins")
+    const { data, error } = await supabaseAdmin.from("collection_pins")
       .insert({ collection_id: collectionId, pin_id: pinId, added_by: addedBy })
       .select("*").single();
     if (error) throw error;
@@ -105,7 +105,7 @@ export const collectionsRepository = {
 
   // Remove a pin from a collection (the pin itself is not deleted)
   async removePin(collectionId: string, pinId: string): Promise<void> {
-    const { error } = await supabasePublic.from("collection_pins").delete()
+    const { error } = await supabaseAdmin.from("collection_pins").delete()
       .eq("collection_id", collectionId).eq("pin_id", pinId);
     if (error) throw error;
   },
