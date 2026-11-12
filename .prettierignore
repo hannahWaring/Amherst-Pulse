@@ -2,6 +2,7 @@
 **/package-lock.json
 **/dist/
 backend/src/types/database.types.ts
+docs/api.md
 
 # Supabase CLI temp files
 backend/supabase/.temp/
