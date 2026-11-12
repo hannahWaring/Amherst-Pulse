@@ -1,3 +1,4 @@
+// create rules and update rules are the same for now, change if needed
 import { badRequest } from "../errors/AppError.js";
 import type { CreatePinInput, UpdatePinInput } from "../types/pins.js";
 
@@ -18,12 +19,67 @@ type Rule<T> = (input: T) => string | null;
 //     ? "ends_at must be after starts_at."
 //     : null;
 
+// Amherst approximate bounding box
+const MIN_LATITUDE = 42.30;
+const MAX_LATITUDE = 42.45;
+const MIN_LONGITUDE = -72.60;
+const MAX_LONGITUDE = -72.45;
+
+const validTitle: Rule<UpdatePinInput> = (input) =>
+  input.title !== undefined &&
+  (typeof input.title !== "string" || input.title.trim().length === 0)
+    ? "title cannot be empty."
+    : null;
+
+const validLatitude: Rule<UpdatePinInput> = (input) =>
+  input.latitude != null &&
+  (input.latitude < MIN_LATITUDE || input.latitude > MAX_LATITUDE)
+    ? "latitude must be within Amherst."
+    : null;
+
+const validLongitude: Rule<UpdatePinInput> = (input) =>
+  input.longitude != null &&
+  (input.longitude < MIN_LONGITUDE || input.longitude > MAX_LONGITUDE)
+    ? "longitude must be within Amherst."
+    : null;
+
+const validStartsAt: Rule<UpdatePinInput> = (input) =>
+  input.starts_at != null && Number.isNaN(Date.parse(input.starts_at))
+    ? "starts_at must be a valid date."
+    : null;
+
+const validEndsAt: Rule<UpdatePinInput> = (input) =>
+  input.ends_at != null && Number.isNaN(Date.parse(input.ends_at))
+    ? "ends_at must be a valid date."
+    : null;
+
+const endsAfterStarts: Rule<UpdatePinInput> = (input) =>
+  input.starts_at != null &&
+  input.ends_at != null &&
+  Date.parse(input.ends_at) <= Date.parse(input.starts_at)
+    ? "ends_at must be after starts_at."
+    : null;
+
+
 const createRules: Rule<CreatePinInput>[] = [
   // add rules for creating a pin here
+  validTitle,
+  validLatitude,
+  validLongitude,
+  validStartsAt,
+  validEndsAt,
+  endsAfterStarts,
+
 ];
 
 const updateRules: Rule<UpdatePinInput>[] = [
   // add rules for updating a pin here
+  validTitle,
+  validLatitude,
+  validLongitude,
+  validStartsAt,
+  validEndsAt,
+  endsAfterStarts,
 ];
 
 // Runs every rule and throws one 400 listing all failures in `details`.
