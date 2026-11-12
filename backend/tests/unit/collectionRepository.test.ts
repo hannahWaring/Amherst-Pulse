@@ -19,8 +19,8 @@ const from = jest.fn<AnyFn>();
 
 // Register the mock BEFORE importing the code under test.
 jest.unstable_mockModule("../../src/lib/supabase.js", () => ({
-  supabasePublic: { from },
-  supabaseAdmin: {},
+  supabasePublic: {},
+  supabaseAdmin: { from },
   usernameToEmail: jest.fn(),
 }));
 

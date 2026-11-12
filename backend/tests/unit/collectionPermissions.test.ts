@@ -15,8 +15,8 @@ const builder = {
 const from = jest.fn<AnyFn>();
 
 jest.unstable_mockModule("../../src/lib/supabase.js", () => ({
-  supabasePublic: { from },
-  supabaseAdmin: {},
+  supabasePublic: {},
+  supabaseAdmin: { from },
   usernameToEmail: jest.fn(),
 }));
 

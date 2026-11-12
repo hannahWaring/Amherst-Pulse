@@ -1,6 +1,8 @@
 import cors from "cors";
 import express from "express";
+import swaggerUi from "swagger-ui-express";
 import { env } from "./config/env.js";
+import { swaggerSpec } from "./config/swagger.js";
 import { notFound } from "./errors/AppError.js";
 import { supabaseAdmin } from "./lib/supabase.js";
 import { errorHandler } from "./middleware/errorHandler.js";
@@ -27,6 +29,8 @@ app.get("/health", async (_req, res) => {
     res.status(503).json({ status: "degraded", db: "unreachable" });
   }
 });
+
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use("/auth", authRouter);
 app.use("/pins", pinRouter);
