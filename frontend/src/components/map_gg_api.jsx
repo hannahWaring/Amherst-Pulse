@@ -24,7 +24,7 @@ Array.from({ length: 20 }, (_, i) => ({
   longitude: -72.5199 + (Math.cos(i * 1.8) * 0.015),
   color: colors[i % colors.length],
 }));
-export default function MapGGAPI({ pins = Pins }) {
+export default function MapGGAPI() {
     return (
         <APIProvider apiKey = {import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
             <div className  = "h-full w-full">
@@ -35,7 +35,7 @@ export default function MapGGAPI({ pins = Pins }) {
                     disableDefaultUI={false}
                     className = "h-full w-full"
                 >
-                    {pins.map((pin) => (
+                    {Pins.map((pin) => (
                         <Marker
                             key={pin.id}
                             position={{ 

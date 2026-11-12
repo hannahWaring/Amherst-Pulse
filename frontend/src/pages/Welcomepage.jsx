@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { MapPin, Compass, ArrowRight, X, Eye, EyeOff } from "lucide-react";
+import { MapPin, Compass, ArrowRight, X } from "lucide-react";
 
 const pins = [
   { top: "38%", left: "18%", color: "#14b8a6" },
@@ -10,31 +10,6 @@ const pins = [
 
 export default function WelcomePage({ onGetStarted }) {
   const [showLogin, setShowLogin] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
-
-  const closeLogin = () => {
-    setShowLogin(false);
-    setError("");
-  };
-
-  const toggleMode = () => {
-    setIsSignUp((prev) => !prev);
-    setError("");
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!username.trim() || !password) {
-      setError("Please enter your username and password.");
-      return;
-    }
-    setError("");
-    // TODO: connect to backend /login and /signup once ready
-  };
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#f5f3ff]">
@@ -64,7 +39,7 @@ export default function WelcomePage({ onGetStarted }) {
                 }}
                 className="whitespace-nowrap"
               >
-                Amherst <span style={{ color: "#6b4df6" }}>Pulse</span>
+                Campus <span style={{ color: "#6b4df6" }}>Pulze</span>
               </h1>
 
               <p className="mt-2 text-base font-medium text-[#5f6b8a] sm:text-lg md:text-xl">
@@ -137,7 +112,7 @@ export default function WelcomePage({ onGetStarted }) {
             {/* Close button */}
             <button
               type="button"
-              onClick={closeLogin}
+              onClick={() => setShowLogin(false)}
               className="absolute right-5 top-5 rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
               aria-label="Close login"
             >
@@ -151,28 +126,25 @@ export default function WelcomePage({ onGetStarted }) {
               </div>
 
               <h2 className="text-3xl font-bold text-[#1f2757]">
-                {isSignUp ? "Sign up" : "Log in"}
+                Welcome to Campus Pulze
               </h2>
             </div>
 
             {/* Login form */}
-            <form className="space-y-5" onSubmit={handleSubmit} noValidate>
-              {/* Username */}
+            <form className="space-y-5">
+              {/* Email */}
               <div>
                 <label
-                  htmlFor="username"
+                  htmlFor="email"
                   className="mb-2 block text-sm font-medium text-gray-700"
                 >
-                  Username
+                  Email
                 </label>
 
                 <input
-                  id="username"
-                  type="text"
-                  autoComplete="username"
-                  placeholder="Enter your username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  id="email"
+                  type="email"
+                  placeholder="Enter your email"
                   className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
                 />
               </div>
@@ -186,58 +158,22 @@ export default function WelcomePage({ onGetStarted }) {
                   Password
                 </label>
 
-                <div className="relative">
-                  <input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    autoComplete={isSignUp ? "new-password" : "current-password"}
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full rounded-xl border border-gray-300 px-4 py-3 pr-12 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
-                  />
-
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((prev) => !prev)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-gray-500 transition-colors hover:text-gray-700"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-5 w-5" />
-                    ) : (
-                      <Eye className="h-5 w-5" />
-                    )}
-                  </button>
-                </div>
+                <input
+                  id="password"
+                  type="password"
+                  placeholder="Enter your password"
+                  className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+                />
               </div>
 
-              {/* Error message */}
-              {error && (
-                <p role="alert" className="text-sm font-medium text-red-600">
-                  {error}
-                </p>
-              )}
-
-              {/* Submit button */}
+              {/* Login button */}
+              {/* Login button */}
               <button
                 type="submit"
                 className="w-full rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 py-3 font-semibold text-white shadow-lg shadow-indigo-500/25 transition hover:from-indigo-700 hover:to-violet-700"
               >
-                {isSignUp ? "Sign Up" : "Log In"}
+                Log In
               </button>
-
-              {/* Toggle between log in and sign up */}
-              <p className="text-center text-sm text-gray-500">
-                {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
-                <button
-                  type="button"
-                  onClick={toggleMode}
-                  className="font-semibold text-[#6b4df6] hover:underline"
-                >
-                  {isSignUp ? "Log in" : "Sign up"}
-                </button>
-              </p>
 
               {/* Guest option */}
               <div className="relative my-6 flex items-center">
@@ -249,7 +185,7 @@ export default function WelcomePage({ onGetStarted }) {
               <button
                 type="button"
                 onClick={() => {
-                  closeLogin();
+                  setShowLogin(false);
                   onGetStarted?.();
                 }}
                 className="w-full rounded-xl border-2 border-[#6b4df6] bg-white py-3 font-semibold text-[#6b4df6] transition hover:bg-[#f5f3ff]"
