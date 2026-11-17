@@ -1,19 +1,20 @@
 import { createClient } from "@supabase/supabase-js";
 import { env } from "../config/env.js";
+import type { Database } from "./database.types.js";
 
 const serverOptions = {
   auth: { autoRefreshToken: false, persistSession: false },
 };
 
 // Uses the secret key (sb_secret_...): bypasses RLS and can call auth.admin.*. Server-side only.
-export const supabaseAdmin = createClient(
+export const supabaseAdmin = createClient<Database>(
   env.supabaseUrl,
   env.supabaseSecretKey,
   serverOptions,
 );
 
 // Uses the publishable key (sb_publishable_...): for acting as an end user (e.g. password sign-in).
-export const supabasePublic = createClient(
+export const supabasePublic = createClient<Database>(
   env.supabaseUrl,
   env.supabasePublishableKey,
   serverOptions,
