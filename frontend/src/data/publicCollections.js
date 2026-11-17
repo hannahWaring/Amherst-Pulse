@@ -4,6 +4,8 @@ export const publicCollections = [
   {
     id: 1,
     ownerUsername: 'janedoe',
+    visibility: 'public',
+    members: [{ username: 'alexkim', role: 'collaborator' }],
     color: '#8B5CF6',
     title: 'Hiking Events',
     rso: 'UMOC',
@@ -17,6 +19,8 @@ export const publicCollections = [
   {
     id: 2,
     ownerUsername: 'janedoe',
+    visibility: 'public',
+    members: [],
     color: '#14B8A6',
     title: 'Math Events',
     rso: 'Recreational Math Club',
@@ -30,6 +34,8 @@ export const publicCollections = [
   {
     id: 3,
     ownerUsername: 'janedoe',
+    visibility: 'public',
+    members: [{ username: 'priya_r', role: 'collaborator' }, { username: 'sofiag', role: 'collaborator' }],
     color: '#F59E0B',
     title: 'Best Views',
     description: 'Outdoor spots with a great view.',
@@ -43,6 +49,8 @@ export const publicCollections = [
   {
     id: 4,
     ownerUsername: 'janedoe',
+    visibility: 'public',
+    members: [],
     color: '#EC4899',
     title: 'Late Night Study Spots',
     description: 'Places on campus that stay open late.',
@@ -55,6 +63,8 @@ export const publicCollections = [
   {
     id: 5,
     ownerUsername: 'janedoe',
+    visibility: 'public',
+    members: [],
     color: '#3B82F6',
     title: 'Coffee Around Amherst',
     description: 'Cafes in town and on campus.',
@@ -68,6 +78,8 @@ export const publicCollections = [
   {
     id: 6,
     ownerUsername: 'janedoe',
+    visibility: 'public',
+    members: [{ username: 'jordanb', role: 'collaborator' }],
     color: '#EF4444',
     title: 'Hackathon Season',
     rso: 'HackUMass',

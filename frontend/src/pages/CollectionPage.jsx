@@ -1,31 +1,41 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardMedia, Typography } from '@mui/material';
-import { ArrowLeft, MapPin, Pencil } from 'lucide-react';
+import { ArrowLeft, Eye, MapPin, Pencil, Share2 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
 import MapGGAPI from '../components/map_gg_api';
 import CreatePin from '../components/pins/CreatePin';
 import CreateCollection from '../components/collections/CreateCollection';
-import { publicCollections } from '../data/publicCollections';
+import ShareCollection from '../components/collections/ShareCollection';
+import { findCollectionById, getAccessRole } from '../data/collections';
+import { currentUsername } from '../data/mockUsers';
 
 export default function CollectionPage({ collectionId }) {
   const [isCreatePinOpen, setIsCreatePinOpen] = useState(false);
   const [isCreateCollectionOpen, setIsCreateCollectionOpen] = useState(false);
   const [isEditCollectionOpen, setIsEditCollectionOpen] = useState(false);
-  const [collection, setCollection] = useState(() =>
-    publicCollections.find((item) => item.id === collectionId)
-  );
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [collection, setCollection] = useState(() => findCollectionById(collectionId));
 
   useEffect(() => {
-    setCollection(publicCollections.find((item) => item.id === collectionId));
+    setCollection(findCollectionById(collectionId));
   }, [collectionId]);
 
-  const currentUsername = 'janedoe';
-  const canEditCollection = collection?.ownerUsername === currentUsername;
-  const backHref = new URLSearchParams(window.location.search).get('from') === 'collections'
-    ? '/collections'
-    : '/explore';
-  const backLabel = backHref === '/collections' ? 'Back to My Collections' : 'Back to Explore';
+  // Owner and collaborators can edit and share; viewers can only view.
+  const accessRole = getAccessRole(collection, currentUsername);
+  const canEditCollection = accessRole === 'owner' || accessRole === 'collaborator';
+  const canShareCollection = canEditCollection;
+  const from = new URLSearchParams(window.location.search).get('from');
+  const backHref = from === 'shared'
+    ? '/collections?tab=shared'
+    : from === 'collections'
+      ? '/collections'
+      : '/explore';
+  const backLabel = from === 'shared'
+    ? 'Back to Shared with me'
+    : from === 'collections'
+      ? 'Back to My Collections'
+      : 'Back to Explore';
 
   return (
     <main className="flex h-screen flex-col overflow-hidden bg-[#F8F9FE]">
@@ -71,18 +81,42 @@ export default function CollectionPage({ collectionId }) {
                       <Typography component="h1" variant="h5" sx={{ fontWeight: 700, color: '#1f2757' }}>
                         {collection.title}
                       </Typography>
-                      {canEditCollection && (
-                        <button
-                          type="button"
-                          onClick={() => setIsEditCollectionOpen(true)}
-                          className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-                          aria-label="Edit collection"
-                        >
-                          <Pencil className="h-4 w-4" aria-hidden="true" />
-                          Edit
-                        </button>
-                      )}
+                      <div className="flex shrink-0 items-center gap-2">
+                        {canShareCollection && (
+                          <button
+                            type="button"
+                            onClick={() => setIsShareOpen(true)}
+                            className="inline-flex items-center gap-2 rounded-lg bg-violet-600 px-3 py-2 text-sm font-semibold text-white hover:bg-violet-700"
+                            aria-label="Share collection"
+                          >
+                            <Share2 className="h-4 w-4" aria-hidden="true" />
+                            Share
+                          </button>
+                        )}
+                        {canEditCollection && (
+                          <button
+                            type="button"
+                            onClick={() => setIsEditCollectionOpen(true)}
+                            className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                            aria-label="Edit collection"
+                          >
+                            <Pencil className="h-4 w-4" aria-hidden="true" />
+                            Edit
+                          </button>
+                        )}
+                        {accessRole === 'viewer' && (
+                          <span className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-2 text-sm font-medium text-slate-600">
+                            <Eye className="h-4 w-4" aria-hidden="true" />
+                            View only
+                          </span>
+                        )}
+                      </div>
                     </div>
+                    {(accessRole === 'collaborator' || accessRole === 'viewer') && (
+                      <Typography variant="body2" sx={{ mt: 0.5, color: 'text.secondary' }}>
+                        Shared by @{collection.ownerUsername}
+                      </Typography>
+                    )}
                     {collection.rso && (
                       <Typography variant="subtitle1" sx={{ mt: 0.5, color: '#6b4df6', fontWeight: 600 }}>
                         {collection.rso}
@@ -135,6 +169,17 @@ export default function CollectionPage({ collectionId }) {
 
         {isCreatePinOpen && <CreatePin onClose={() => setIsCreatePinOpen(false)} />}
         {isCreateCollectionOpen && <CreateCollection onClose={() => setIsCreateCollectionOpen(false)} />}
+        {isShareOpen && collection && (
+          <ShareCollection
+            collection={collection}
+            currentUsername={currentUsername}
+            onClose={() => setIsShareOpen(false)}
+            onSave={(updatedCollection) => {
+              Object.assign(collection, updatedCollection);
+              setCollection(updatedCollection);
+            }}
+          />
+        )}
         {isEditCollectionOpen && collection && (
           <CreateCollection
             mode="edit"

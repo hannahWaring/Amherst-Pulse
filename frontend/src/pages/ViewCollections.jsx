@@ -1,38 +1,29 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardMedia, Typography } from '@mui/material';
+import { Card, CardContent, CardMedia, Chip, Tab, Tabs, Typography } from '@mui/material';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
 import CreatePin from '../components/pins/CreatePin';
 import CreateCollection from '../components/collections/CreateCollection';
-
-const collections = [
-  {
-    id: 1,
-    title: 'Hiking Events',
-    rso: 'UMOC',
-    description: 'Upcoming events with UMOC.',
-    image: '/isometric-3d-map.png',
-  },
-  {
-    id: 2,
-    title: 'Math Events',
-    rso: 'Recreational Math Club',
-    description: 'Lectures and PSETs.',
-    image: '/isometric-3d-map.png',
-  },
-  {
-    id: 3,
-    title: 'Best Views',
-
-    description: 'Outdoor spots with a great view.',
-    image: '/isometric-3d-map.png',
-  },
-  
-];
+import { getCollectionsSharedWith, getOwnedCollections, getAccessRole } from '../data/collections';
+import { currentUsername } from '../data/mockUsers';
 
 export default function ViewCollections() {
   const [isCreatePinOpen, setIsCreatePinOpen] = useState(false);
   const [isCreateCollectionOpen, setIsCreateCollectionOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState(() =>
+    new URLSearchParams(window.location.search).get('tab') === 'shared' ? 'shared' : 'owned'
+  );
+
+  const isSharedTab = activeTab === 'shared';
+  const collections = isSharedTab
+    ? getCollectionsSharedWith(currentUsername)
+    : getOwnedCollections(currentUsername);
+
+  const handleTabChange = (_event, newTab) => {
+    setActiveTab(newTab);
+    const url = newTab === 'shared' ? '/collections?tab=shared' : '/collections';
+    window.history.replaceState(null, '', url);
+  };
 
   return (
     <main className="flex h-screen flex-col overflow-hidden bg-[#F8F9FE]">
@@ -51,12 +42,39 @@ export default function ViewCollections() {
               My Collections
             </Typography>
 
-            <div className="mt-6 flex flex-col gap-4">
+            <Tabs
+              value={activeTab}
+              onChange={handleTabChange}
+              aria-label="Collection lists"
+              sx={{
+                mt: 3,
+                borderBottom: 1,
+                borderColor: 'divider',
+                '& .MuiTab-root': { textTransform: 'none', fontWeight: 600 },
+                '& .MuiTab-root.Mui-selected': { color: '#6b4df6' },
+                '& .MuiTabs-indicator': { backgroundColor: '#6b4df6' },
+              }}
+            >
+              <Tab label="My Collections" value="owned" id="tab-owned" aria-controls="tabpanel-collections" />
+              <Tab label="Shared with me" value="shared" id="tab-shared" aria-controls="tabpanel-collections" />
+            </Tabs>
+
+            <div
+              id="tabpanel-collections"
+              role="tabpanel"
+              aria-labelledby={isSharedTab ? 'tab-shared' : 'tab-owned'}
+              className="mt-6 flex flex-col gap-4"
+            >
+              {collections.length === 0 && (
+                <p className="py-10 text-center text-sm font-medium text-slate-500">
+                  {isSharedTab ? 'No collections have been shared with you yet.' : "You haven't made any collections yet."}
+                </p>
+              )}
               {collections.map((collection) => (
                 <Card
                   key={collection.id}
                   component="a"
-                  href={`/collections/${collection.id}?from=collections`}
+                  href={`/collections/${collection.id}?from=${isSharedTab ? 'shared' : 'collections'}`}
                   sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, borderRadius: 3 }}
                 >
                   <CardMedia
@@ -75,6 +93,18 @@ export default function ViewCollections() {
                     <Typography variant="body2" sx={{ mt: 1.5, color: 'text.secondary', lineHeight: 1.6 }}>
                       {collection.description}
                     </Typography>
+                    {isSharedTab && (
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                          Shared by @{collection.ownerUsername}
+                        </Typography>
+                        <Chip
+                          size="small"
+                          label={getAccessRole(collection, currentUsername) === 'viewer' ? 'Viewer' : 'Collaborator'}
+                          sx={{ bgcolor: '#ede9fe', color: '#6d28d9', fontWeight: 600 }}
+                        />
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               ))}
