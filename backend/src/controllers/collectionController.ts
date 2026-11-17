@@ -1,125 +1,189 @@
-import type { Request, Response } from "express";
-import {
-  COLLECTION_NOT_FOUND,
-  NOT_OWNER_OR_EDITOR,
-  PIN_ALREADY_IN_COLLECTION,
-  PIN_NOT_FOUND,
-  PIN_NOT_IN_COLLECTION,
-  collectionService,
-} from "../services/collectionService.js";
+import type { Request, Response, NextFunction } from "express";
+import { badRequest } from "../errors/AppError.js";
+import { collectionService } from "../services/collectionService.js";
 
-// Status code for each known error message from the service; anything else is 500
-const ERROR_STATUS: Record<string, number> = {
-  [COLLECTION_NOT_FOUND]: 404,
-  [PIN_NOT_FOUND]: 404,
-  [PIN_NOT_IN_COLLECTION]: 404,
-  [NOT_OWNER_OR_EDITOR]: 403,
-  [PIN_ALREADY_IN_COLLECTION]: 409,
-};
-
-// For now every error returns its exact message so it is easier to debug.
-// Supabase errors are plain objects with a `message`, not always `Error` instances.
-function errorMessage(err: unknown): string {
-  if (err instanceof Error) {
-    return err.message;
-  }
-  if (typeof err === "object" && err !== null && "message" in err) {
-    return String(err.message);
-  }
-  return String(err);
+// Check whether a string is a valid UUID.
+function isValidUUID(id: unknown): id is string {
+  return (
+    typeof id === "string" &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+      id,
+    )
+  );
 }
 
-function sendError(res: Response, err: unknown) {
-  const message = errorMessage(err);
-  const status = ERROR_STATUS[message] ?? 500;
-  res.status(status).json({ error: message });
+// Create a collection (the owner is the logged-in user)
+export async function createCollection(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const user = req.user!;
+    // req.body is undefined in Express 5 when no JSON body was sent.
+    const body = req.body ?? {};
+    const collection = await collectionService.createCollection(user.id, body);
+    res.status(201).json(collection);
+  } catch (error) {
+    next(error);
+  }
 }
 
-export const collectionController = {
-  // POST / — creates a new collection
-  // owner comes from the request body for now (no auth check yet)
-  // owner id- is the id of the person who made the collection
-  async create(req: Request, res: Response) {
-    try {
-      const { owner_id, ...input } = req.body ?? {};
-      const collection = await collectionService.createCollection(owner_id, input);
-      res.status(201).json(collection);
-    } catch (err) {
-      sendError(res, err);
-    }
-  },
+// Get the collections owned by the logged-in user
+export async function listMyCollections(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const user = req.user!;
+    const collections = await collectionService.getCollectionsByOwner(user.id);
+    res.status(200).json(collections);
+  } catch (error) {
+    next(error);
+  }
+}
 
-  // GET /user/:userId — collections owned by the user
-  async getByUser(req: Request<{ userId: string }>, res: Response) {
-    try {
-      const collections = await collectionService.getCollectionsByOwner(req.params.userId);
-      res.json(collections);
-    } catch (err) {
-      sendError(res, err);
-    }
-  },
+// Get the collections other users shared with the logged-in user
+export async function listSharedCollections(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const user = req.user!;
+    const collections = await collectionService.getCollectionsSharedWithUser(
+      user.id,
+    );
+    res.status(200).json(collections);
+  } catch (error) {
+    next(error);
+  }
+}
 
-  // GET /user/:userId/shared — collections shared with the user by others
-  async getSharedWithUser(req: Request<{ userId: string }>, res: Response) {
-    try {
-      const collections = await collectionService.getCollectionsSharedWithUser(req.params.userId);
-      res.json(collections);
-    } catch (err) {
-      sendError(res, err);
-    }
-  },
+// Get one collection
+export async function getCollection(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const id = req.params.id;
 
-  // GET /:id - get/search for a collection by the collection id
-  async getById(req: Request<{ id: string }>, res: Response) {
-    try {
-      const collection = await collectionService.getCollectionById(req.params.id);
-      res.json(collection);
-    } catch (err) {
-      sendError(res, err);
+    if (!isValidUUID(id)) {
+      next(badRequest("Invalid collection ID."));
+      return;
     }
-  },
 
-  // PATCH /:id - basically update a collection
-  async update(req: Request<{ id: string }>, res: Response) {
-    try {
-      const collection = await collectionService.updateCollection(req.params.id, req.body ?? {});
-      res.json(collection);
-    } catch (err) {
-      sendError(res, err);
-    }
-  },
+    const collection = await collectionService.getCollectionById(id);
+    res.status(200).json(collection);
+  } catch (error) {
+    next(error);
+  }
+}
 
-  // DELETE /:id - delete a collection by the collection id
-  async delete(req: Request<{ id: string }>, res: Response) {
-    try {
-      await collectionService.deleteCollection(req.params.id);
-      res.status(204).end();
-    } catch (err) {
-      sendError(res, err);
-    }
-  },
+// Update a collection
+export async function updateCollection(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const id = req.params.id;
 
-  // POST /:id/addPin — add a pin to a collection (owner or editor only)
-  // body: { pin_id, user_id } — user_id is who is adding it, from the request for now (no auth check yet)
-  async addPin(req: Request<{ id: string }>, res: Response) {
-    try {
-      const { pin_id, user_id } = req.body ?? {};
-      const collectionPin = await collectionService.addPinToCollection(req.params.id, pin_id, user_id);
-      res.status(201).json(collectionPin);
-    } catch (err) {
-      sendError(res, err);
+    if (!isValidUUID(id)) {
+      next(badRequest("Invalid collection ID."));
+      return;
     }
-  },
 
-  // DELETE /:id/deletePin/:pinId — remove a pin from a collection (owner or editor only)
-  // body: { user_id } — who is removing it, from the request for now (no auth check yet)
-  async removePin(req: Request<{ id: string; pinId: string }>, res: Response) {
-    try {
-      const { user_id } = req.body ?? {};
-      await collectionService.removePinFromCollection(req.params.id, req.params.pinId, user_id);
-      res.status(204).end();
-    } catch (err) {
-      sendError(res, err);
+    // req.body is undefined in Express 5 when no JSON body was sent.
+    const body = req.body ?? {};
+    const collection = await collectionService.updateCollection(id, body);
+    res.status(200).json(collection);
+  } catch (error) {
+    next(error);
+  }
+}
+
+// Delete a collection
+export async function deleteCollection(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const id = req.params.id;
+
+    if (!isValidUUID(id)) {
+      next(badRequest("Invalid collection ID."));
+      return;
     }
-  },
-};
+
+    await collectionService.deleteCollection(id);
+    res.status(204).end();
+  } catch (error) {
+    next(error);
+  }
+}
+
+// Add a pin to a collection (owner or editor only); body: { pin_id }
+export async function addPin(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const user = req.user!;
+    const id = req.params.id;
+
+    if (!isValidUUID(id)) {
+      next(badRequest("Invalid collection ID."));
+      return;
+    }
+
+    // req.body is undefined in Express 5 when no JSON body was sent.
+    const pinId = req.body?.pin_id;
+
+    if (!isValidUUID(pinId)) {
+      next(badRequest("Invalid pin ID."));
+      return;
+    }
+
+    const collectionPin = await collectionService.addPinToCollection(
+      id,
+      pinId,
+      user.id,
+    );
+    res.status(201).json(collectionPin);
+  } catch (error) {
+    next(error);
+  }
+}
+
+// Remove a pin from a collection (owner or editor only); the pin itself is not deleted
+export async function removePin(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const user = req.user!;
+    const id = req.params.id;
+    const pinId = req.params.pinId;
+
+    if (!isValidUUID(id)) {
+      next(badRequest("Invalid collection ID."));
+      return;
+    }
+
+    if (!isValidUUID(pinId)) {
+      next(badRequest("Invalid pin ID."));
+      return;
+    }
+
+    await collectionService.removePinFromCollection(id, pinId, user.id);
+    res.status(204).end();
+  } catch (error) {
+    next(error);
+  }
+}

@@ -5,6 +5,7 @@ import { notFound } from "./errors/AppError.js";
 import { supabaseAdmin } from "./lib/supabase.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { authRouter } from "./routes/authRoute.js";
+import collectionRouter from "./routes/collectionRoute.js";
 import pinRouter from "./routes/pinRoute.js";
 
 export const app = express();
@@ -29,6 +30,7 @@ app.get("/health", async (_req, res) => {
 
 app.use("/auth", authRouter);
 app.use("/pins", pinRouter);
+app.use("/collections", collectionRouter);
 
 app.use((_req, _res, next) => {
   next(notFound());
