@@ -1,38 +1,41 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardMedia, Typography } from '@mui/material';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
 import CreatePin from '../components/pins/CreatePin';
 import CreateCollection from '../components/collections/CreateCollection';
-
-const collections = [
-  {
-    id: 1,
-    title: 'Hiking Events',
-    rso: 'UMOC',
-    description: 'Upcoming events with UMOC.',
-    image: '/isometric-3d-map.png',
-  },
-  {
-    id: 2,
-    title: 'Math Events',
-    rso: 'Recreational Math Club',
-    description: 'Lectures and PSETs.',
-    image: '/isometric-3d-map.png',
-  },
-  {
-    id: 3,
-    title: 'Best Views',
-
-    description: 'Outdoor spots with a great view.',
-    image: '/isometric-3d-map.png',
-  },
-  
-];
+import { createCollection, listMyCollections, listSharedCollections, toCollectionView } from '../api/collections';
+import { publicCollections } from '../data/publicCollections';
 
 export default function ViewCollections() {
   const [isCreatePinOpen, setIsCreatePinOpen] = useState(false);
   const [isCreateCollectionOpen, setIsCreateCollectionOpen] = useState(false);
+  const [collections, setCollections] = useState(publicCollections.slice(0, 3));
+
+  useEffect(() => {
+    let active = true;
+    Promise.all([listMyCollections(), listSharedCollections()])
+      .then(([owned, shared]) => {
+        if (!active) return;
+        const unique = new Map([...owned, ...shared].map((item) => [item.id, toCollectionView(item)]));
+        setCollections([...unique.values()]);
+      })
+      .catch(() => {
+        // Keep the demo collections visible until a valid development session/backend is available.
+      });
+    return () => { active = false; };
+  }, []);
+
+  const handleCreateCollection = async (values) => {
+    const created = await createCollection({
+      title: values.title,
+      description: values.description || null,
+      visibility: values.visibility,
+      viewer_can_add_pins: false,
+    });
+    setCollections((current) => [toCollectionView(created), ...current]);
+    setIsCreateCollectionOpen(false);
+  };
 
   return (
     <main className="flex h-screen flex-col overflow-hidden bg-[#F8F9FE]">
@@ -83,7 +86,12 @@ export default function ViewCollections() {
         </section>
 
         {isCreatePinOpen && <CreatePin onClose={() => setIsCreatePinOpen(false)} />}
-        {isCreateCollectionOpen && <CreateCollection onClose={() => setIsCreateCollectionOpen(false)} />}
+        {isCreateCollectionOpen && (
+          <CreateCollection
+            onClose={() => setIsCreateCollectionOpen(false)}
+            onSave={handleCreateCollection}
+          />
+        )}
       </div>
     </main>
   );
