@@ -16,17 +16,13 @@ const builder = {
 const from = jest.fn<AnyFn>();
 
 jest.unstable_mockModule("../../src/lib/supabase.js", () => ({
-<<<<<<< HEAD
-  supabasePublic: { },
-  supabaseAdmin: {from},
-=======
-  supabasePublic: { from },
-  supabaseAdmin: {},
->>>>>>> origin/backend-dev
+  supabasePublic: {},
+  supabaseAdmin: { from },
   usernameToEmail: jest.fn(),
 }));
 
-const { pinsRepository } = await import("../../src/repositories/pinRepository.js");
+const { pinsRepository } =
+  await import("../../src/repositories/pinRepository.js");
 
 const dbError = { message: "boom", code: "XX000" };
 
@@ -62,7 +58,7 @@ describe("pinsRepository", () => {
     test("throws the Supabase error", async () => {
       single.mockResolvedValue({ data: null, error: dbError });
       await expect(
-        pinsRepository.create("u1", { title: "x" } as any)
+        pinsRepository.create("u1", { title: "x" } as any),
       ).rejects.toBe(dbError);
     });
   });
@@ -76,7 +72,10 @@ describe("pinsRepository", () => {
         error: null,
       });
 
-      await expect(pinsRepository.findAllByCollection("c1")).resolves.toEqual([pinA, pinB]);
+      await expect(pinsRepository.findAllByCollection("c1")).resolves.toEqual([
+        pinA,
+        pinB,
+      ]);
 
       expect(from).toHaveBeenCalledWith("collection_pins");
       expect(builder.select).toHaveBeenCalledWith("pins(*)");
@@ -85,12 +84,16 @@ describe("pinsRepository", () => {
 
     test("returns [] when data is null", async () => {
       builder.eq.mockResolvedValueOnce({ data: null, error: null });
-      await expect(pinsRepository.findAllByCollection("c1")).resolves.toEqual([]);
+      await expect(pinsRepository.findAllByCollection("c1")).resolves.toEqual(
+        [],
+      );
     });
 
     test("throws the Supabase error", async () => {
       builder.eq.mockResolvedValueOnce({ data: null, error: dbError });
-      await expect(pinsRepository.findAllByCollection("c1")).rejects.toBe(dbError);
+      await expect(pinsRepository.findAllByCollection("c1")).rejects.toBe(
+        dbError,
+      );
     });
   });
 
@@ -133,75 +136,47 @@ describe("pinsRepository", () => {
       const notFound = { message: "no rows", code: "PGRST116" };
       single.mockResolvedValue({ data: null, error: notFound });
       await expect(
-        pinsRepository.update("missing", { title: "x" } as any)
+        pinsRepository.update("missing", { title: "x" } as any),
       ).rejects.toBe(notFound);
     });
   });
 
-<<<<<<< HEAD
-  
-describe("delete", () => {
-  test("deletes an existing pin", async () => {
-    builder.select.mockResolvedValueOnce({
-      data: [{ id: "p1" }],
-      error: null,
-    });
-
-    await expect(pinsRepository.delete("p1")).resolves.toBe(true);
-
-    expect(from).toHaveBeenCalledWith("pins");
-    expect(builder.delete).toHaveBeenCalledTimes(1);
-    expect(builder.eq).toHaveBeenCalledWith("id", "p1");
-    expect(builder.select).toHaveBeenCalledWith("id");
-  });
-
-  test("returns false when pin does not exist", async () => {
-    builder.select.mockResolvedValueOnce({
-      data: [],
-      error: null,
-    });
-
-    await expect(
-      pinsRepository.delete("missing")
-    ).resolves.toBe(false);
-  });
-
-  test("throws a foreign-key error from Supabase", async () => {
-    const fkError = {
-      message: "violates foreign key constraint",
-      code: "23503",
-    };
-
-    builder.select.mockResolvedValueOnce({
-      data: null,
-      error: fkError,
-    });
-
-    await expect(
-      pinsRepository.delete("p1")
-    ).rejects.toBe(fkError);
-  });
-});
-});
-=======
   describe("delete", () => {
-    test("deletes by id and resolves to undefined", async () => {
-      builder.eq.mockResolvedValueOnce({ data: null, error: null });
+    test("deletes an existing pin", async () => {
+      builder.select.mockResolvedValueOnce({
+        data: [{ id: "p1" }],
+        error: null,
+      });
 
-      await expect(pinsRepository.delete("p1")).resolves.toBeUndefined();
+      await expect(pinsRepository.delete("p1")).resolves.toBe(true);
 
       expect(from).toHaveBeenCalledWith("pins");
       expect(builder.delete).toHaveBeenCalledTimes(1);
       expect(builder.eq).toHaveBeenCalledWith("id", "p1");
+      expect(builder.select).toHaveBeenCalledWith("id");
     });
 
-    // The real FK failure (pin still in a collection) needs an integration test;
-    // here we only check that such an error is passed through.
+    test("returns false when pin does not exist", async () => {
+      builder.select.mockResolvedValueOnce({
+        data: [],
+        error: null,
+      });
+
+      await expect(pinsRepository.delete("missing")).resolves.toBe(false);
+    });
+
     test("throws a foreign-key error from Supabase", async () => {
-      const fkError = { message: "violates foreign key constraint", code: "23503" };
-      builder.eq.mockResolvedValueOnce({ data: null, error: fkError });
+      const fkError = {
+        message: "violates foreign key constraint",
+        code: "23503",
+      };
+
+      builder.select.mockResolvedValueOnce({
+        data: null,
+        error: fkError,
+      });
+
       await expect(pinsRepository.delete("p1")).rejects.toBe(fkError);
     });
   });
 });
->>>>>>> origin/backend-dev

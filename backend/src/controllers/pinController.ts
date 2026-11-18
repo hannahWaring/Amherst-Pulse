@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import { badRequest } from "../errors/AppError.js";
+import { badRequest, notImplemented } from "../errors/AppError.js";
 import { pinsService } from "../services/pinService.js";
 
 // Check whether a string is a valid UUID.
@@ -51,6 +51,15 @@ export async function listPins(
   } catch (error) {
     next(error);
   }
+}
+
+// Get a user's public pins (pins in at least one public collection) — not implemented yet
+export async function listPublicPinsByUser(
+  _req: Request,
+  _res: Response,
+  next: NextFunction,
+): Promise<void> {
+  next(notImplemented());
 }
 
 // Get one pin

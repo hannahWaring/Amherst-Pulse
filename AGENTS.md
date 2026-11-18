@@ -10,7 +10,7 @@ Stack:
 - **Backend:** Express 5 + TypeScript 7 (Node.js, ESM) — in `backend/`
 - **Frontend:** React + Vite + Tailwind CSS — in `frontend/`
 - **Auth:** Supabase — usernames are mapped to undeliverable `<username>@<AUTH_EMAIL_DOMAIN>` emails; no email confirmation
-- **Database:** PostgreSQL (Supabase-hosted). All data access uses the `supabase-js` query builder; no direct Postgres connection. Migrations live in `backend/supabase/migrations/`; `database/schema.sql` holds a copy of the schema. Whether repositories use `supabaseAdmin` (secret key, bypasses RLS) or a user-scoped client with RLS policies is still undecided — pins currently use `supabaseAdmin`
+- **Database:** PostgreSQL (Supabase-hosted). All data access uses the `supabase-js` query builder; no direct Postgres connection. Migrations live in `backend/supabase/migrations/`; `database/schema.sql` holds a copy of the schema. Repositories use `supabaseAdmin` (secret key, bypasses RLS), so permission checks live in the services; `supabasePublic` is only used by the auth controller to sign users in and refresh sessions
 
 ### Backend structure (`backend/src/`)
 
@@ -30,6 +30,7 @@ Stack:
 - `npm test` — Jest (@swc/jest, supertest): runs unit then integration tests.
   - `npm run test:unit` — `backend/tests/unit/`; no Docker or local Supabase needed
   - `npm run test:integration` — `backend/tests/integration/`; needs Docker running. Starts the local Supabase if needed and resets its database first (both skipped in CI, which starts its own)
+- `npm run docs:generate` — regenerates `docs/api.md` from the `@openapi` comments in `src/routes/`; the Husky pre-commit hook runs it automatically when route files or `src/config/swagger.ts` are staged. Swagger UI is served at `/docs`
 - `npm run db:sync` — after a schema change in the hosted dashboard: pulls a new migration, resets the local database, and regenerates `src/types/database.types.ts`
 
 ### Frontend commands (run in `frontend/`)

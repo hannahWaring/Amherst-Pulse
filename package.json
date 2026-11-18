@@ -3,6 +3,10 @@
     "prettier": "^3.9.10"
   },
   "scripts": {
-    "prettier": "prettier --write ."
+    "prettier": "prettier --write .",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7"
   }
 }

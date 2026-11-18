@@ -32,3 +32,6 @@ export const notFound = (message = "Not found") =>
 
 export const conflict = (message: string) =>
   new AppError(409, message, "conflict");
+
+export const notImplemented = (message = "Not implemented") =>
+  new AppError(501, message, "not_implemented");

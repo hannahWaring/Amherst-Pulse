@@ -1,0 +1,8 @@
+# Regenerate docs/api.md when API route docs are staged, and add it to this commit.
+if git diff --cached --name-only | grep -qE '^backend/src/(routes/|config/swagger\.ts$)'; then
+  npm --prefix backend run docs:generate || {
+    echo "pre-commit: API docs generation failed; commit aborted." >&2
+    exit 1
+  }
+  git add docs/api.md
+fi
