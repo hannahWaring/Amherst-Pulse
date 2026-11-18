@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.18"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       collection_members: {
@@ -106,7 +131,6 @@ export type Database = {
           id: string
           owner_id: string
           title: string
-          viewer_can_add_pins: boolean
           visibility: string
         }
         Insert: {
@@ -114,7 +138,6 @@ export type Database = {
           id: string
           owner_id: string
           title: string
-          viewer_can_add_pins?: boolean
           visibility?: string
         }
         Update: {
@@ -122,7 +145,6 @@ export type Database = {
           id?: string
           owner_id?: string
           title?: string
-          viewer_can_add_pins?: boolean
           visibility?: string
         }
         Relationships: [
@@ -334,6 +356,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },
