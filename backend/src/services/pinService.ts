@@ -1,7 +1,3 @@
-//validator unfinished
-//a lot of these might need to be discussed during meeting or with Dia about how she implemented the collection
-//mainly about who have rights to edit a pin
-//and where do we verify if a user could create a pin or not
 import { forbidden, notFound } from "../errors/AppError.js";
 import { pinsRepository } from "../repositories/pinRepository.js";
 import type { CreatePinInput, UpdatePinInput } from "../types/pins.js";
@@ -9,15 +5,59 @@ import {
   validateCreatePin,
   validateUpdatePin,
 } from "../validators/pinValidator.js";
+import { collectionsRepository } from "../repositories/collectionRepository.js";
+
+function isPinExpired(pin: {
+ends_at: string | null;
+}): boolean {
+if (!pin.ends_at) {
+  return false;
+}
+
+return new Date(pin.ends_at).getTime() <= Date.now();
+}
+
+function addPinStatus<T extends { ends_at: string | null }>(pin: T) {
+  return {
+    ...pin,
+    is_expired: isPinExpired(pin),
+  };
+}
 
 export const pinsService = {
+
+  async canModifyPin(userId: string, pinId: string, creatorId: string) {
+  // Pin creator can always modify their pin
+  if (creatorId === userId) {
+    return true;
+  }
+  const collectionIds =
+    await pinsRepository.findCollectionIdsByPin(pinId);
+
+  for (const collectionId of collectionIds) {
+    const allowed =
+      await collectionsRepository.canUserModifyCollection(
+        userId,
+        collectionId,
+      );
+
+    if (allowed) {
+      return true;
+    }
+  }
+
+  return false;
+},
+
   async createPin(creatorId: string, input: CreatePinInput) {
     validateCreatePin(input);
-    return await pinsRepository.create(creatorId, input);
+    const pin = await pinsRepository.create(creatorId, input);
+    return addPinStatus(pin);
   },
 
   async getPinsByCollection(collectionId: string) {
-    return pinsRepository.findAllByCollection(collectionId);
+    const pins = await pinsRepository.findAllByCollection(collectionId);
+    return pins.map(addPinStatus);
   },
 
   async getPinById(id: string) {
@@ -25,25 +65,26 @@ export const pinsService = {
     if (!pin) {
       throw notFound("Pin not found");
     }
-    return pin;
+    return addPinStatus(pin);
   },
 
   async updatePin(userid: string, id: string, input: UpdatePinInput) {
     const existing = await this.getPinById(id);
-    //this needs to be reconsidered(?) could, say the collection owner edit the pin?
-    if (existing.creator_id !== userid) {
-      throw forbidden("Only the creator can edit this pin");
-    }
+    if (!(await this.canModifyPin(userid, id, existing.creator_id))) {
+    throw forbidden("You do not have permission to modify this pin");
+  }
     validateUpdatePin(input);
-    return await pinsRepository.update(id, input);
+    const updatedPin = await pinsRepository.update(id, input);
+    return addPinStatus(updatedPin);
   },
 
   async deletePin(userId: string, id: string) {
     const existing = await this.getPinById(id);
-    //same as the one in updatePin do we check by owner of collection instead?
-    if (existing.creator_id !== userId) {
-      throw forbidden("Only the creator can delete this pin");
-    }
+    if (!(await this.canModifyPin(userId, id, existing.creator_id))) {
+    throw forbidden("You do not have permission to modify this pin");
+  }
+
     await pinsRepository.delete(id);
   },
+
 };

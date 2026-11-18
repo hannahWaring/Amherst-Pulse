@@ -18,9 +18,9 @@ export const collectionsRepository = {
     const { data, error } = await supabaseAdmin
       .from(TABLE)
       .insert({
+        ...input,
         id: randomUUID(),
         owner_id: ownerId,
-        ...input,
       })
       .select("*")
       .single();
@@ -138,4 +138,37 @@ export const collectionsRepository = {
       .eq("pin_id", pinId);
     if (error) throw error;
   },
+
+//check if the user is a collaborator/ have rights to modify the collection
+  async canUserModifyCollection(userId: string, collectionId: string) {
+  // Check if the user owns the collection
+  const { data: collection, error: collectionError } = await supabasePublic
+    .from("collections")
+    .select("owner_id")
+    .eq("id", collectionId)
+    .single();
+
+  if (collectionError) {
+    throw collectionError;
+  }
+
+  if (collection?.owner_id === userId) {
+    return true;
+  }
+
+  // Check if the user is a collaborator
+  const { data: member, error: memberError } = await supabasePublic
+    .from("collection_members")
+    .select("role")
+    .eq("collection_id", collectionId)
+    .eq("user_id", userId)
+    .eq("role", "collaborator")
+    .maybeSingle();
+
+  if (memberError) {
+    throw memberError;
+  }
+
+  return member !== null;
+},
 };
