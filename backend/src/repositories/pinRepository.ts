@@ -28,7 +28,17 @@ export const pinsRepository = {
     const validPins = pins.filter((pin) => pin !== null);
     return validPins as Pin[];
   },
-  //do we need get pin by users?
+
+  async findCollectionIdsByPin(pinId: string) {
+  const { data, error } = await supabaseAdmin
+    .from("collection_pins")
+    .select("collection_id")
+    .eq("pin_id", pinId);
+  if (error) {
+    throw error;
+  }
+  return data.map((row) => row.collection_id);
+},
 
   // Get a pin by its ID.
   async findById(id: string): Promise<Pin | null> {
