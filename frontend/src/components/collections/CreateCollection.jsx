@@ -38,6 +38,8 @@ export default function CreateCollection({ onClose, mode = "create", collection,
   const [initialMembers] = useState(() => collection?.members ?? []);
   const [members, setMembers] = useState(initialMembers);
   const ownerUsername = collection?.ownerUsername ?? currentUsername;
+  // Only the owner can change sharing settings; collaborators see them read-only.
+  const canManageSharing = ownerUsername === currentUsername;
 
   const mockPins = publicCollections.flatMap((collection) =>
     collection.pins.map((pin) => ({
@@ -253,6 +255,7 @@ export default function CreateCollection({ onClose, mode = "create", collection,
                   value={option.value}
                   checked={visibility === option.value}
                   onChange={() => handleVisibilityChange(option.value)}
+                  disabled={!canManageSharing}
                   className="mt-1 accent-violet-600"
                 />
                 <option.Icon className="mt-0.5 h-5 w-5 shrink-0 text-violet-600" aria-hidden="true" />
@@ -270,6 +273,7 @@ export default function CreateCollection({ onClose, mode = "create", collection,
           onMembersChange={setMembers}
           visibility={visibility}
           currentUsername={currentUsername}
+          canManage={canManageSharing}
         />
       </div>
     );

@@ -21,10 +21,10 @@ export default function CollectionPage({ collectionId }) {
     setCollection(findCollectionById(collectionId));
   }, [collectionId]);
 
-  // Owner and collaborators can edit and share; viewers can only view.
+  // Owner and collaborators can edit; only the owner can share (team decision 11/17).
   const accessRole = getAccessRole(collection, currentUsername);
   const canEditCollection = accessRole === 'owner' || accessRole === 'collaborator';
-  const canShareCollection = canEditCollection;
+  const canShareCollection = accessRole === 'owner';
   const from = new URLSearchParams(window.location.search).get('from');
   const backHref = from === 'shared'
     ? '/collections?tab=shared'

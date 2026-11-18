@@ -154,3 +154,22 @@ now make the Ai logs
 **Claude:** [asked what to fix] **User chose: Polish my takeaway** (after being told the template says this section should be written without AI help).
 
 **Claude:** [Lightly reworded the user's takeaway for grammar, keeping the user's meaning and wording as close as possible. The user's original wording is preserved verbatim earlier in this chat log.]
+
+---
+
+**User (Nov 17, evening):** check discord
+
+**Claude:** [Discord in the built-in browser was logged out; with the user's approval, read the Discord desktop app using computer use] Reported: in #general (3:43 PM) Toby proposed sharing rules and Sunny, Dia and Maddy agreed: only the collection owner can add a user as collaborator or viewer ("no one else can do so"); invites are auto-accepted; owners can remove collaborators; collaborators can add, delete, and edit pins in a collection. Pointed out this conflicts with the PR, where collaborators could also use Share. Also relayed Maddy's question in #frontend about rebasing main.
+
+**User:** what do i do idk whats next
+
+**Claude:** Proposed making sharing owner-only (Share button and the Sharing step of the Edit modal), replying to Maddy, confirming the PR is open, and waiting for Dang's PR.
+
+**User:** yeah do it
+
+**Claude:** [Implemented, following the team's rule:]
+- `frontend/src/pages/CollectionPage.jsx`: the Share button now shows only for the owner (collaborators still see Edit; viewers still see "View only").
+- `frontend/src/components/collections/PeopleWithAccess.jsx`: new `canManage` prop; when false, the "Add people" input and role dropdowns are hidden, roles show as plain text, and a note says only the owner can change who has access.
+- `frontend/src/components/collections/CreateCollection.jsx`: in the Sharing step, non-owners see the people list read-only and the Public/Private options disabled.
+
+[Lint error count unchanged from baseline; build passes. Playwright check: owner sees Share + Edit; collaborator sees Edit only and a read-only Sharing step; viewer sees "View only"; owner's Share modal and Create modal still allow adding people; no page errors. Copied the files into the repo; commit/push left to the user.]
