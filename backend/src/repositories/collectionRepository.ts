@@ -142,7 +142,7 @@ export const collectionsRepository = {
 //check if the user is a collaborator/ have rights to modify the collection
   async canUserModifyCollection(userId: string, collectionId: string) {
   // Check if the user owns the collection
-  const { data: collection, error: collectionError } = await supabasePublic
+  const { data: collection, error: collectionError } = await supabaseAdmin
     .from("collections")
     .select("owner_id")
     .eq("id", collectionId)
@@ -157,7 +157,7 @@ export const collectionsRepository = {
   }
 
   // Check if the user is a collaborator
-  const { data: member, error: memberError } = await supabasePublic
+  const { data: member, error: memberError } = await supabaseAdmin
     .from("collection_members")
     .select("role")
     .eq("collection_id", collectionId)
