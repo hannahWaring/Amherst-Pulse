@@ -86,5 +86,9 @@ export const pinsService = {
 
     await pinsRepository.delete(id);
   },
+  async getMyPins(userId: string) {
+    const pins = await pinsRepository.findByCreator(userId);
+    return pins.map(addPinStatus);
+  },
 
 };

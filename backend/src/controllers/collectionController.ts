@@ -180,27 +180,26 @@ export async function removePin(
       next(badRequest("Invalid pin ID."));
       return;
     }
-  },
-
-  // GET / — list all public collections (not implemented yet)
-  async listPublic(_req: Request, res: Response) {
-    res.status(501).json({ error: "Not implemented" });
-  },
-
-  // POST /:id/share — share a collection with a user by user id or username (not implemented yet)
-  async share(_req: Request<{ id: string }>, res: Response) {
-    res.status(501).json({ error: "Not implemented" });
-  },
-
-  // DELETE /:id/revoke — revoke a user's access to a collection (not implemented yet)
-  async revoke(_req: Request<{ id: string }>, res: Response) {
-    res.status(501).json({ error: "Not implemented" });
-  },
-};
-
-    await collectionService.removePinFromCollection(id, pinId, user.id);
+await collectionService.removePinFromCollection(id, pinId, user.id);
     res.status(204).end();
   } catch (error) {
     next(error);
   }
 }
+
+//   // GET / — list all public collections (not implemented yet)
+//   async listPublic(_req: Request, res: Response) {
+//     res.status(501).json({ error: "Not implemented" });
+//   },
+
+//   // POST /:id/share — share a collection with a user by user id or username (not implemented yet)
+//   async share(_req: Request<{ id: string }>, res: Response) {
+//     res.status(501).json({ error: "Not implemented" });
+//   },
+
+//   // DELETE /:id/revoke — revoke a user's access to a collection (not implemented yet)
+//   async revoke(_req: Request<{ id: string }>, res: Response) {
+//     res.status(501).json({ error: "Not implemented" });
+//   },
+// };
+

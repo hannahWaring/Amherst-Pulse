@@ -7,6 +7,7 @@ import {
   getPin,
   updatePin,
   deletePin,
+  listMyPins
 } from "../controllers/pinController.js";
 
 const router = Router();
@@ -184,6 +185,8 @@ router.get("/:id", getPin);
  *         description: "`Pin not found` · `Not found` (empty body)"
  */
 router.patch("/:id", updatePin);
+
+router.get("/mine", listMyPins);
 
 /**
  * @openapi

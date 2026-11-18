@@ -787,7 +787,7 @@ id: string //format: uuid
 
 ```typescript
 {
-  user: {
+  user?: {
     id?: string //format: uuid
     username?: string
   }
@@ -832,7 +832,7 @@ id: string //format: uuid
 
 ```typescript
 {
-  user: {
+  user?: {
     id?: string //format: uuid
     username?: string
   }
@@ -895,7 +895,7 @@ id: string //format: uuid
 
 ```typescript
 {
-  user: {
+  user?: {
     id?: string //format: uuid
     username?: string
   }
@@ -1026,7 +1026,7 @@ id: string //format: uuid
 
 ```typescript
 {
-  user: {
+  user?: {
     id?: string //format: uuid
     username?: string
   }

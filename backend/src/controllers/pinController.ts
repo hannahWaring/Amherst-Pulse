@@ -138,3 +138,19 @@ export async function deletePin(
     next(error);
   }
 }
+
+  // Get all pins created by the current user
+export async function listMyPins(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const user = req.user!;
+    const pins = await pinsService.getMyPins(user.id);
+    res.status(200).json(pins);
+  } catch (error) {
+    next(error);
+  }
+}
+

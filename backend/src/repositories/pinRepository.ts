@@ -29,6 +29,17 @@ export const pinsRepository = {
     return validPins as Pin[];
   },
 
+  async findByCreator(userId: string) {
+  const { data, error } = await supabaseAdmin
+    .from("pins")
+    .select("*")
+    .eq("creator_id", userId);
+
+  if (error) throw error;
+
+  return data;
+},
+
   async findCollectionIdsByPin(pinId: string) {
   const { data, error } = await supabaseAdmin
     .from("collection_pins")
