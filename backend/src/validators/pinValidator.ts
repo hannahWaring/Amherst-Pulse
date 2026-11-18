@@ -69,7 +69,6 @@ const createRules: Rule<CreatePinInput>[] = [
   validStartsAt,
   validEndsAt,
   endsAfterStarts,
-
 ];
 
 const updateRules: Rule<UpdatePinInput>[] = [
