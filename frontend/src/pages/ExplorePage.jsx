@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardActionArea, CardContent, CardMedia, Typography } from '@mui/material';
 import { Search } from 'lucide-react';
 import Navbar from '../components/Navbar';
@@ -6,15 +6,29 @@ import Sidebar from '../components/Sidebar';
 import CreatePin from '../components/pins/CreatePin';
 import CreateCollection from '../components/collections/CreateCollection';
 import { publicCollections } from '../data/publicCollections';
+import { listPublicCollections, toCollectionView } from '../api/collections';
 
 
 export default function ExplorePage() {
   const [isCreatePinOpen, setIsCreatePinOpen] = useState(false);
   const [isCreateCollectionOpen, setIsCreateCollectionOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [collections, setCollections] = useState(publicCollections);
+
+  useEffect(() => {
+    let active = true;
+    listPublicCollections()
+      .then((rows) => {
+        if (active) setCollections(rows.map((row) => toCollectionView(row)));
+      })
+      .catch(() => {
+        // Keep the public demo list until the API is available on this branch.
+      });
+    return () => { active = false; };
+  }, []);
 
   const query = searchQuery.trim().toLowerCase();
-  const filteredCollections = publicCollections.filter(
+  const filteredCollections = collections.filter(
     (collection) =>
       collection.title.toLowerCase().includes(query) ||
       (collection.rso ?? '').toLowerCase().includes(query)

@@ -26,8 +26,8 @@ export default function App() {
   if (path === '/collections') return <ViewCollections />;
   if (path === '/settings') return <SettingsPage />;
   if (path === '/explore') return <ExplorePage />;
-  const collectionMatch = path.match(/^\/collections\/(\d+)$/);
-  if (collectionMatch) return <CollectionPage collectionId={Number(collectionMatch[1])} />;
+  const collectionMatch = path.match(/^\/collections\/([^/]+)$/);
+  if (collectionMatch) return <CollectionPage collectionId={collectionMatch[1]} />;
   if (path === '/home') return <DefaultPage />;
   return <DefaultPage />
   

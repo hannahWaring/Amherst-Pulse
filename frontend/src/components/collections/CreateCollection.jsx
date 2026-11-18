@@ -13,6 +13,7 @@ import {
   UserRoundPlus,
 } from "lucide-react";
 import { publicCollections } from "../../data/publicCollections";
+import { createCollection } from "../../api/collections";
 
 const phases = ["Basic Info", "Add Pins", "Sharing"];
 
@@ -23,7 +24,7 @@ export default function CreateCollection({ onClose, mode = "create", collection,
     rso: collection?.rso ?? "",
     description: collection?.description ?? "",
     image: collection?.image ?? "",
-    pinKeys: collection?.pins.map((pin) => pin.key ?? `${collection.id}-${pin.id}`) ?? [],
+    pinKeys: collection?.pins?.map((pin) => pin.key ?? `${collection.id}-${pin.id}`) ?? [],
     visibility: collection?.visibility ?? "private",
   }).current;
   const [phase, setPhase] = useState(0);
@@ -35,6 +36,8 @@ export default function CreateCollection({ onClose, mode = "create", collection,
   const [selectedPins, setSelectedPins] = useState(initialValues.pinKeys);
   const [visibility, setVisibility] = useState(initialValues.visibility);
   const [collaboratorQuery, setCollaboratorQuery] = useState("");
+  const [viewerQuery, setViewerQuery] = useState("");
+  const [saveError, setSaveError] = useState("");
 
   const mockPins = publicCollections.flatMap((collection) =>
     collection.pins.map((pin) => ({
@@ -77,14 +80,15 @@ export default function CreateCollection({ onClose, mode = "create", collection,
   const handleBack = () => {
     setPhase((prevPhase) => prevPhase - 1);
   };
-  const handleSave = () => {
-    if (isEditing) {
-      const pins = selectedPins
-        .map((key) => mockPins.find((pin) => pin.key === key))
-        .filter(Boolean)
-        .map((pin) => ({ ...pin, id: pin.key }));
+  const handleSave = async () => {
+    setSaveError("");
+    const pins = selectedPins
+      .map((key) => mockPins.find((pin) => pin.key === key))
+      .filter(Boolean)
+      .map((pin) => ({ ...pin, id: pin.key }));
 
-      onSave?.({
+    try {
+      const values = {
         ...collection,
         title,
         rso,
@@ -92,10 +96,22 @@ export default function CreateCollection({ onClose, mode = "create", collection,
         image,
         pins,
         visibility,
-      });
+      };
+      if (onSave) {
+        await onSave(values);
+      } else if (!isEditing) {
+        await createCollection({
+          title,
+          description: description || null,
+          visibility,
+          viewer_can_add_pins: false,
+        });
+      }
+      setPhase(0);
+      onClose();
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : "Could not save collection.");
     }
-    setPhase(0);
-    onClose();
   };
 
   function phase1() {
@@ -251,25 +267,49 @@ export default function CreateCollection({ onClose, mode = "create", collection,
             ))}
           </div>
         </fieldset>
-        <div>
-          <label htmlFor="collection-collaborator-search" className="mb-2 flex items-center gap-2 text-sm font-semibold text-[#1f2757]">
-            <UserRoundPlus className="h-5 w-5 text-violet-600" aria-hidden="true" />
-            Add collaborators
-          </label>
-          <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3">
-            <Search className="h-5 w-5 shrink-0 text-slate-400" />
-            <input
-              id="collection-collaborator-search"
-              type="search"
-              value={collaboratorQuery}
-              onChange={(event) => setCollaboratorQuery(event.target.value)}
-              placeholder="Search by username..."
-              className="w-full bg-transparent text-sm text-slate-700 outline-none"
-            />
+        <div className="flex flex-col gap-5">
+          <div>
+            <label htmlFor="collection-collaborator-search" className="mb-2 flex items-center gap-2 text-sm font-semibold text-[#1f2757]">
+              <UserRoundPlus className="h-5 w-5 text-violet-600" aria-hidden="true" />
+              Add collaborators
+            </label>
+            <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3">
+              <Search className="h-5 w-5 shrink-0 text-slate-400" />
+              <input
+                id="collection-collaborator-search"
+                type="search"
+                value={collaboratorQuery}
+                onChange={(event) => setCollaboratorQuery(event.target.value)}
+                placeholder="Search by username..."
+                className="w-full bg-transparent text-sm text-slate-700 outline-none"
+              />
+            </div>
+            <p className="mt-2 text-xs text-slate-500">
+              Add collaborators who can help manage this collection.
+            </p>
           </div>
-          <p className="mt-2 text-xs text-slate-500">
-            Username search and collaborator invitations will be connected when user data is available.
-          </p>
+          {visibility === "private" && (
+            <div>
+              <label htmlFor="collection-viewer-search" className="mb-2 flex items-center gap-2 text-sm font-semibold text-[#1f2757]">
+                <UserRoundPlus className="h-5 w-5 text-violet-600" aria-hidden="true" />
+                Add viewers
+              </label>
+              <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3">
+                <Search className="h-5 w-5 shrink-0 text-slate-400" />
+                <input
+                  id="collection-viewer-search"
+                  type="search"
+                  value={viewerQuery}
+                  onChange={(event) => setViewerQuery(event.target.value)}
+                  placeholder="Search by username..."
+                  className="w-full bg-transparent text-sm text-slate-700 outline-none"
+                />
+              </div>
+              <p className="mt-2 text-xs text-slate-500">
+                Add people who can view this private collection.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -352,6 +392,7 @@ export default function CreateCollection({ onClose, mode = "create", collection,
 
         {/* Render Based on Phase*/}
         <div className="mt-6">{renderPhaseContent()}</div>
+        {saveError && <p role="alert" className="mt-4 text-sm font-medium text-red-600">{saveError}</p>}
 
         {/* Footer */}
         <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-5">

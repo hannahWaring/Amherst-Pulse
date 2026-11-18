@@ -7,21 +7,42 @@ import MapGGAPI from '../components/map_gg_api';
 import CreatePin from '../components/pins/CreatePin';
 import CreateCollection from '../components/collections/CreateCollection';
 import { publicCollections } from '../data/publicCollections';
+import {
+  collectionSession,
+  getCollection,
+  getCollectionPins,
+  toCollectionView,
+  updateCollection,
+} from '../api/collections';
 
 export default function CollectionPage({ collectionId }) {
   const [isCreatePinOpen, setIsCreatePinOpen] = useState(false);
   const [isCreateCollectionOpen, setIsCreateCollectionOpen] = useState(false);
   const [isEditCollectionOpen, setIsEditCollectionOpen] = useState(false);
   const [collection, setCollection] = useState(() =>
-    publicCollections.find((item) => item.id === collectionId)
+    publicCollections.find((item) => item.id === Number(collectionId))
   );
 
   useEffect(() => {
-    setCollection(publicCollections.find((item) => item.id === collectionId));
+    let active = true;
+    const fallback = publicCollections.find((item) => item.id === Number(collectionId));
+    if (fallback) setCollection(fallback);
+    else setCollection(null);
+
+    Promise.all([getCollection(collectionId), getCollectionPins(collectionId)])
+      .then(([row, pins]) => {
+        if (active) setCollection(toCollectionView(row, pins));
+      })
+      .catch(() => {
+        // Keep demo details visible when the backend or development session is unavailable.
+      });
+
+    return () => { active = false; };
   }, [collectionId]);
 
-  const currentUsername = 'janedoe';
-  const canEditCollection = collection?.ownerUsername === currentUsername;
+  const canEditCollection = collection?.ownerId
+    ? collection.ownerId === collectionSession.user.id
+    : collection?.ownerUsername === 'janedoe';
   const backHref = new URLSearchParams(window.location.search).get('from') === 'collections'
     ? '/collections'
     : '/explore';
@@ -140,9 +161,24 @@ export default function CollectionPage({ collectionId }) {
             mode="edit"
             collection={collection}
             onClose={() => setIsEditCollectionOpen(false)}
-            onSave={(updatedCollection) => {
-              Object.assign(collection, updatedCollection);
-              setCollection(updatedCollection);
+            onSave={async (updatedCollection) => {
+              const saved = await updateCollection(collection.id, {
+                title: updatedCollection.title,
+                description: updatedCollection.description || null,
+                visibility: updatedCollection.visibility,
+              });
+              setCollection({
+                ...collection,
+                ...toCollectionView(saved, collection.pins.map((pin) => ({
+                  id: pin.id,
+                  title: pin.name,
+                  location_name: pin.location,
+                  latitude: pin.lat,
+                  longitude: pin.lng,
+                }))),
+                rso: updatedCollection.rso,
+                image: updatedCollection.image,
+              });
             }}
           />
         )}
