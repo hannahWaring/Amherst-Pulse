@@ -10,9 +10,10 @@ import {
   Check,
   Globe2,
   LockKeyhole,
-  UserRoundPlus,
 } from "lucide-react";
 import { publicCollections } from "../../data/publicCollections";
+import { currentUsername } from "../../data/mockUsers";
+import PeopleWithAccess from "./PeopleWithAccess";
 
 const phases = ["Basic Info", "Add Pins", "Sharing"];
 
@@ -34,7 +35,11 @@ export default function CreateCollection({ onClose, mode = "create", collection,
   const [pinQuery, setPinQuery] = useState("");
   const [selectedPins, setSelectedPins] = useState(initialValues.pinKeys);
   const [visibility, setVisibility] = useState(initialValues.visibility);
-  const [collaboratorQuery, setCollaboratorQuery] = useState("");
+  const [initialMembers] = useState(() => collection?.members ?? []);
+  const [members, setMembers] = useState(initialMembers);
+  const ownerUsername = collection?.ownerUsername ?? currentUsername;
+  // Only the owner can change sharing settings; collaborators see them read-only.
+  const canManageSharing = ownerUsername === currentUsername;
 
   const mockPins = publicCollections.flatMap((collection) =>
     collection.pins.map((pin) => ({
@@ -51,6 +56,7 @@ export default function CreateCollection({ onClose, mode = "create", collection,
     description !== initialValues.description ||
     image !== initialValues.image ||
     visibility !== initialValues.visibility ||
+    JSON.stringify(members) !== JSON.stringify(initialMembers) ||
     JSON.stringify([...selectedPins].sort()) !== JSON.stringify([...initialValues.pinKeys].sort());
 
   const handleClose = () => {
@@ -69,6 +75,14 @@ export default function CreateCollection({ onClose, mode = "create", collection,
     };
     reader.readAsDataURL(file);
     event.target.value = "";
+  };
+
+  // Public collections only take collaborators, so viewers are removed when switching to public.
+  const handleVisibilityChange = (newVisibility) => {
+    setVisibility(newVisibility);
+    if (newVisibility === "public") {
+      setMembers((current) => current.filter((person) => person.role !== "viewer"));
+    }
   };
 
   const handleNext = () => {
@@ -92,6 +106,7 @@ export default function CreateCollection({ onClose, mode = "create", collection,
         image,
         pins,
         visibility,
+        members,
       });
     }
     setPhase(0);
@@ -239,7 +254,8 @@ export default function CreateCollection({ onClose, mode = "create", collection,
                   name="collection-visibility"
                   value={option.value}
                   checked={visibility === option.value}
-                  onChange={() => setVisibility(option.value)}
+                  onChange={() => handleVisibilityChange(option.value)}
+                  disabled={!canManageSharing}
                   className="mt-1 accent-violet-600"
                 />
                 <option.Icon className="mt-0.5 h-5 w-5 shrink-0 text-violet-600" aria-hidden="true" />
@@ -251,26 +267,14 @@ export default function CreateCollection({ onClose, mode = "create", collection,
             ))}
           </div>
         </fieldset>
-        <div>
-          <label htmlFor="collection-collaborator-search" className="mb-2 flex items-center gap-2 text-sm font-semibold text-[#1f2757]">
-            <UserRoundPlus className="h-5 w-5 text-violet-600" aria-hidden="true" />
-            Add collaborators
-          </label>
-          <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3">
-            <Search className="h-5 w-5 shrink-0 text-slate-400" />
-            <input
-              id="collection-collaborator-search"
-              type="search"
-              value={collaboratorQuery}
-              onChange={(event) => setCollaboratorQuery(event.target.value)}
-              placeholder="Search by username..."
-              className="w-full bg-transparent text-sm text-slate-700 outline-none"
-            />
-          </div>
-          <p className="mt-2 text-xs text-slate-500">
-            Username search and collaborator invitations will be connected when user data is available.
-          </p>
-        </div>
+        <PeopleWithAccess
+          ownerUsername={ownerUsername}
+          members={members}
+          onMembersChange={setMembers}
+          visibility={visibility}
+          currentUsername={currentUsername}
+          canManage={canManageSharing}
+        />
       </div>
     );
   }
