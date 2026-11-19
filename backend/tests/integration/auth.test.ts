@@ -311,3 +311,67 @@ describe("/auth/refresh tests", () => {
     expect(res.status).toBe(401);
   });
 });
+
+describe("/auth/signup additional tests", () => {
+  it("Rejects signup when username is missing", async () => {
+    const res = await request(app)
+      .post("/auth/signup")
+      .send({ password: "testpassword123" });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe("username and password are required");
+  });
+
+  it("Rejects signup when password is missing", async () => {
+    const res = await request(app)
+      .post("/auth/signup")
+      .send({ username: "newuser" });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe("username and password are required");
+  });
+});
+
+describe("/auth/login additional tests", () => {
+  it("Rejects login when both credentials are missing", async () => {
+    const res = await request(app)
+      .post("/auth/login")
+      .send({});
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe("username and password are required");
+  });
+
+  it("Rejects login for nonexistent user", async () => {
+    const res = await request(app)
+      .post("/auth/login")
+      .send({
+        username: "nonexistent_test_user_98765",
+        password: "testpassword123"
+      });
+
+    expect(res.status).toBe(401);
+    expect(res.body.error).toBe("Invalid username or password");
+  });
+});
+
+describe("/auth/logout additional tests", () => {
+  it("Rejects logout when Authorization header is missing", async () => {
+    const res = await request(app)
+      .post("/auth/logout");
+
+    expect(res.status).toBe(401);
+    expect(res.body.error).toBe("Missing bearer token");
+  });
+});
+
+describe("/auth/refresh additional tests", () => {
+  it("Rejects refresh when token is missing", async () => {
+    const res = await request(app)
+      .post("/auth/refresh")
+      .send({});
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe("refresh_token is required");
+  });
+});
