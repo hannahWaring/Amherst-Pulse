@@ -1,13 +1,4 @@
-import { Router } from "express";import {
-  createCollection,
-  listMyCollections,
-  listSharedCollections,
-  getCollection,
-  updateCollection,
-  deleteCollection,
-  addPin,
-  removePin,
-} from "../controllers/collectionController.js";
+import { Router } from "express";
 
 import { authenticate } from "../middleware/authenticate.js";
 import {
@@ -95,7 +86,7 @@ router.use(authenticate);
  *       500:
  *         description: "`null value in column \"<column>\" of relation \"collections\" violates not-null constraint` · `invalid input syntax for type uuid: \"<value>\"` · `insert or update on table \"collections\" violates foreign key constraint \"collections_owner_id_fkey\"`"
  */
-router.post("/", createMycollection);
+router.post("/", createCollection);
 
 /**
  * @openapi
