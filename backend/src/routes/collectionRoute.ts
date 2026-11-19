@@ -1,5 +1,14 @@
-import { Router } from "express";
-import { collectionController } from "../controllers/collectionController.js";
+import { Router } from "express";import {
+  createCollection,
+  listMyCollections,
+  listSharedCollections,
+  getCollection,
+  updateCollection,
+  deleteCollection,
+  addPin,
+  removePin,
+} from "../controllers/collectionController.js";
+
 import { authenticate } from "../middleware/authenticate.js";
 
 const router = Router();
@@ -71,7 +80,7 @@ router.use(authenticate);
  *       500:
  *         description: "`null value in column \"<column>\" of relation \"collections\" violates not-null constraint` · `invalid input syntax for type uuid: \"<value>\"` · `insert or update on table \"collections\" violates foreign key constraint \"collections_owner_id_fkey\"`"
  */
-router.post("/", collectionController.create);
+router.post("/", createMycollection);
 
 /**
  * @openapi
@@ -87,7 +96,7 @@ router.post("/", collectionController.create);
  *       501:
  *         description: "`Not implemented`"
  */
-router.get("/", collectionController.listPublic);
+router.get("/", listPublic);
 
 /**
  * @openapi

@@ -111,6 +111,8 @@ router.post("/", createPin);
  */
 router.get("/collection/:collectionId", listPins);
 
+router.get("/mine", listMyPins);
+
 /**
  * @openapi
  * /pins/user/{userId}:
@@ -185,8 +187,6 @@ router.get("/:id", getPin);
  *         description: "`Pin not found` · `Not found` (empty body)"
  */
 router.patch("/:id", updatePin);
-
-router.get("/mine", listMyPins);
 
 /**
  * @openapi
