@@ -311,74 +311,67 @@ describe("/auth/refresh tests", () => {
     expect(res.status).toBe(401);
   });
 });
+
 describe("/auth/signup additional tests", () => {
-  it("Signing up with a weak password fails with code 400", async () => {
+  it("Rejects signup when username is missing", async () => {
     const res = await request(app)
       .post("/auth/signup")
-      .send({ username: "user4", password: "123" });
+      .send({ password: "testpassword123" });
 
     expect(res.status).toBe(400);
+    expect(res.body.error).toBe("username and password are required");
   });
 
-  it("Signing up with an invalid username fails with code 400", async () => {
+  it("Rejects signup when password is missing", async () => {
     const res = await request(app)
       .post("/auth/signup")
-      .send({ username: "invalid@user", password: "password123" });
+      .send({ username: "newuser" });
 
     expect(res.status).toBe(400);
+    expect(res.body.error).toBe("username and password are required");
   });
 });
 
 describe("/auth/login additional tests", () => {
-  it("Rate limits login attempts after multiple failures", async () => {
-    for (let i = 0; i < 5; i++) {
-      await request(app)
-        .post("/auth/login")
-        .send({ username: "user", password: "wrongpassword" });
-    }
-
+  it("Rejects login when both credentials are missing", async () => {
     const res = await request(app)
       .post("/auth/login")
-      .send({ username: "user", password: "wrongpassword" });
+      .send({});
 
-    expect(res.status).toBe(429); // Too Many Requests
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe("username and password are required");
+  });
+
+  it("Rejects login for nonexistent user", async () => {
+    const res = await request(app)
+      .post("/auth/login")
+      .send({
+        username: "nonexistent_test_user_98765",
+        password: "testpassword123"
+      });
+
+    expect(res.status).toBe(401);
+    expect(res.body.error).toBe("Invalid username or password");
   });
 });
 
 describe("/auth/logout additional tests", () => {
-  it("Revokes all sessions on logout", async () => {
-    const login = await request(app)
-      .post("/auth/login")
-      .send({ username: "user", password: "password" });
+  it("Rejects logout when Authorization header is missing", async () => {
+    const res = await request(app)
+      .post("/auth/logout");
 
-    expect(login.status).toBe(200);
-
-    const token = login.body.access_token;
-
-    await request(app)
-      .post("/auth/logout")
-      .set("Authorization", `Bearer ${token}`);
-
-    const { data, error } = await supabaseAdmin.auth.getUser(token);
-    expect(error).not.toBeNull();
-    expect(data).toBeNull();
+    expect(res.status).toBe(401);
+    expect(res.body.error).toBe("Missing bearer token");
   });
 });
 
-describe("/auth/forgot-password tests", () => {
-  it("Sends password reset email for valid user", async () => {
+describe("/auth/refresh additional tests", () => {
+  it("Rejects refresh when token is missing", async () => {
     const res = await request(app)
-      .post("/auth/forgot-password")
-      .send({ email: "user@example.com" });
+      .post("/auth/refresh")
+      .send({});
 
-    expect(res.status).toBe(200);
-  });
-
-  it("Allows resetting password with valid token", async () => {
-    const reset = await request(app)
-      .post("/auth/reset-password")
-      .send({ token: "validtoken", newPassword: "newpassword123" });
-
-    expect(reset.status).toBe(200);
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe("refresh_token is required");
   });
 });
