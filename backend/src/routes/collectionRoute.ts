@@ -1,6 +1,20 @@
 import { Router } from "express";
-import { collectionController } from "../controllers/collectionController.js";
 import { authenticate } from "../middleware/authenticate.js";
+import {
+  createCollection,
+  listMyCollections,
+  listSharedCollections,
+  getCollection,
+  updateCollection,
+  deleteCollection,
+  addPin,
+  removePin,
+  listPublic,
+  share,
+  revoke,
+} from "../controllers/collectionController.js";
+
+// NOTE: the @openapi docstrings in this file are out of date. We need to rewrite this soon
 
 const router = Router();
 
@@ -71,7 +85,7 @@ router.use(authenticate);
  *       500:
  *         description: "`null value in column \"<column>\" of relation \"collections\" violates not-null constraint` · `invalid input syntax for type uuid: \"<value>\"` · `insert or update on table \"collections\" violates foreign key constraint \"collections_owner_id_fkey\"`"
  */
-router.post("/", collectionController.create);
+router.post("/", createCollection);
 
 /**
  * @openapi
@@ -87,7 +101,7 @@ router.post("/", collectionController.create);
  *       501:
  *         description: "`Not implemented`"
  */
-router.get("/", collectionController.listPublic);
+router.get("/", listPublic);
 
 /**
  * @openapi
@@ -112,7 +126,7 @@ router.get("/", collectionController.listPublic);
  *       500:
  *         description: "`invalid input syntax for type uuid: \"<userId>\"`"
  */
-router.get("/user/:userId", collectionController.getByUser);
+router.get("/mine", listMyCollections);
 
 /**
  * @openapi
@@ -137,7 +151,7 @@ router.get("/user/:userId", collectionController.getByUser);
  *       500:
  *         description: "`invalid input syntax for type uuid: \"<userId>\"`"
  */
-router.get("/user/:userId/shared", collectionController.getSharedWithUser);
+router.get("/shared", listSharedCollections);
 
 /**
  * @openapi
@@ -162,7 +176,7 @@ router.get("/user/:userId/shared", collectionController.getSharedWithUser);
  *       500:
  *         description: "`invalid input syntax for type uuid: \"<id>\"`"
  */
-router.get("/:id", collectionController.getById);
+router.get("/:id", getCollection);
 
 /**
  * @openapi
@@ -192,7 +206,7 @@ router.get("/:id", collectionController.getById);
  *       500:
  *         description: "`invalid input syntax for type uuid: \"<id>\"` · `Cannot coerce the result to a single JSON object` (empty body)"
  */
-router.patch("/:id", collectionController.update);
+router.patch("/:id", updateCollection);
 
 /**
  * @openapi
@@ -214,7 +228,7 @@ router.patch("/:id", collectionController.update);
  *       500:
  *         description: "`invalid input syntax for type uuid: \"<id>\"`"
  */
-router.delete("/:id", collectionController.delete);
+router.delete("/:id", deleteCollection);
 
 /**
  * @openapi
@@ -253,7 +267,7 @@ router.delete("/:id", collectionController.delete);
  *       500:
  *         description: "`invalid input syntax for type uuid: \"<value>\"`"
  */
-router.post("/:id/addPin", collectionController.addPin);
+router.post("/:id/addPin", addPin);
 
 /**
  * @openapi
@@ -287,7 +301,7 @@ router.post("/:id/addPin", collectionController.addPin);
  *       500:
  *         description: "`invalid input syntax for type uuid: \"<value>\"`"
  */
-router.delete("/:id/deletePin/:pinId", collectionController.removePin);
+router.delete("/:id/deletePin/:pinId", removePin);
 
 /**
  * @openapi
@@ -305,7 +319,7 @@ router.delete("/:id/deletePin/:pinId", collectionController.removePin);
  *       501:
  *         description: "`Not implemented`"
  */
-router.post("/:id/share", collectionController.share);
+router.post("/:id/share", share);
 
 /**
  * @openapi
@@ -323,6 +337,6 @@ router.post("/:id/share", collectionController.share);
  *       501:
  *         description: "`Not implemented`"
  */
-router.delete("/:id/revoke", collectionController.revoke);
+router.delete("/:id/revoke", revoke);
 
 export default router;
