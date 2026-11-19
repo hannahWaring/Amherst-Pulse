@@ -311,3 +311,74 @@ describe("/auth/refresh tests", () => {
     expect(res.status).toBe(401);
   });
 });
+describe("/auth/signup additional tests", () => {
+  it("Signing up with a weak password fails with code 400", async () => {
+    const res = await request(app)
+      .post("/auth/signup")
+      .send({ username: "user4", password: "123" });
+
+    expect(res.status).toBe(400);
+  });
+
+  it("Signing up with an invalid username fails with code 400", async () => {
+    const res = await request(app)
+      .post("/auth/signup")
+      .send({ username: "invalid@user", password: "password123" });
+
+    expect(res.status).toBe(400);
+  });
+});
+
+describe("/auth/login additional tests", () => {
+  it("Rate limits login attempts after multiple failures", async () => {
+    for (let i = 0; i < 5; i++) {
+      await request(app)
+        .post("/auth/login")
+        .send({ username: "user", password: "wrongpassword" });
+    }
+
+    const res = await request(app)
+      .post("/auth/login")
+      .send({ username: "user", password: "wrongpassword" });
+
+    expect(res.status).toBe(429); // Too Many Requests
+  });
+});
+
+describe("/auth/logout additional tests", () => {
+  it("Revokes all sessions on logout", async () => {
+    const login = await request(app)
+      .post("/auth/login")
+      .send({ username: "user", password: "password" });
+
+    expect(login.status).toBe(200);
+
+    const token = login.body.access_token;
+
+    await request(app)
+      .post("/auth/logout")
+      .set("Authorization", `Bearer ${token}`);
+
+    const { data, error } = await supabaseAdmin.auth.getUser(token);
+    expect(error).not.toBeNull();
+    expect(data).toBeNull();
+  });
+});
+
+describe("/auth/forgot-password tests", () => {
+  it("Sends password reset email for valid user", async () => {
+    const res = await request(app)
+      .post("/auth/forgot-password")
+      .send({ email: "user@example.com" });
+
+    expect(res.status).toBe(200);
+  });
+
+  it("Allows resetting password with valid token", async () => {
+    const reset = await request(app)
+      .post("/auth/reset-password")
+      .send({ token: "validtoken", newPassword: "newpassword123" });
+
+    expect(reset.status).toBe(200);
+  });
+});
