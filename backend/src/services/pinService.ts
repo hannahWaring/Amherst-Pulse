@@ -5,16 +5,15 @@ import {
   validateCreatePin,
   validateUpdatePin,
 } from "../validators/pinValidator.js";
-import { collectionsRepository } from "../repositories/collectionRepository.js";
+// Only used by the disabled collection check in canModifyPin (see TODO there).
+// import { collectionsRepository } from "../repositories/collectionRepository.js";
 
-function isPinExpired(pin: {
-ends_at: string | null;
-}): boolean {
-if (!pin.ends_at) {
-  return false;
-}
+function isPinExpired(pin: { ends_at: string | null }): boolean {
+  if (!pin.ends_at) {
+    return false;
+  }
 
-return new Date(pin.ends_at).getTime() <= Date.now();
+  return new Date(pin.ends_at).getTime() <= Date.now();
 }
 
 function addPinStatus<T extends { ends_at: string | null }>(pin: T) {
@@ -25,29 +24,30 @@ function addPinStatus<T extends { ends_at: string | null }>(pin: T) {
 }
 
 export const pinsService = {
-
   async canModifyPin(userId: string, pinId: string, creatorId: string) {
-  // Pin creator can always modify their pin
-  if (creatorId === userId) {
-    return true;
-  }
-  const collectionIds =
-    await pinsRepository.findCollectionIdsByPin(pinId);
-
-  for (const collectionId of collectionIds) {
-    const allowed =
-      await collectionsRepository.canUserModifyCollection(
-        userId,
-        collectionId,
-      );
-
-    if (allowed) {
+    // Pin creator can always modify their pin
+    if (creatorId === userId) {
       return true;
     }
-  }
+    // TODO: collection-collaborator check disabled. pinsRepository.findCollectionIdsByPin
+    // was called hear but never implemented. Revisit this later.
+    // const collectionIds =
+    //   await pinsRepository.findCollectionIdsByPin(pinId);
+    //
+    // for (const collectionId of collectionIds) {
+    //   const allowed =
+    //     await collectionsRepository.canUserModifyCollection(
+    //       userId,
+    //       collectionId,
+    //     );
+    //
+    //   if (allowed) {
+    //     return true;
+    //   }
+    // }
 
-  return false;
-},
+    return false;
+  },
 
   async createPin(creatorId: string, input: CreatePinInput) {
     validateCreatePin(input);
@@ -71,8 +71,8 @@ export const pinsService = {
   async updatePin(userid: string, id: string, input: UpdatePinInput) {
     const existing = await this.getPinById(id);
     if (!(await this.canModifyPin(userid, id, existing.creator_id))) {
-    throw forbidden("You do not have permission to modify this pin");
-  }
+      throw forbidden("You do not have permission to modify this pin");
+    }
     validateUpdatePin(input);
     const updatedPin = await pinsRepository.update(id, input);
     return addPinStatus(updatedPin);
@@ -81,8 +81,8 @@ export const pinsService = {
   async deletePin(userId: string, id: string) {
     const existing = await this.getPinById(id);
     if (!(await this.canModifyPin(userId, id, existing.creator_id))) {
-    throw forbidden("You do not have permission to modify this pin");
-  }
+      throw forbidden("You do not have permission to modify this pin");
+    }
 
     await pinsRepository.delete(id);
   },
