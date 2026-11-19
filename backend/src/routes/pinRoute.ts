@@ -7,6 +7,7 @@ import {
   getPin,
   updatePin,
   deletePin,
+  listMyPins
 } from "../controllers/pinController.js";
 
 const router = Router();
@@ -109,6 +110,8 @@ router.post("/", createPin);
  *         description: "`Authentication required.`"
  */
 router.get("/collection/:collectionId", listPins);
+
+router.get("/mine", listMyPins);
 
 /**
  * @openapi

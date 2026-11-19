@@ -39,6 +39,11 @@ const pinsRepository = {
     return updated;
   }),
   delete: jest.fn(async (id: string) => pins.delete(id)),
+  findCollectionIdsByPin: jest.fn(async (pinId: string) =>
+  [...links.values()]
+    .filter((link) => link.pin_id === pinId)
+    .map((link) => link.collection_id),
+),
 };
 const collectionsRepository = {
   create: jest.fn(async (ownerId: string, input: any) => {
@@ -87,6 +92,21 @@ const collectionsRepository = {
   removePin: jest.fn(async (collectionId: string, pinId: string) => {
     links.delete(key(collectionId, pinId));
   }),
+  canUserModifyCollection: jest.fn(async (userId: string, collectionId: string) => {
+  const collection = collections.get(collectionId);
+
+  if (!collection) {
+    throw new Error("Collection not found");
+  }
+
+  if (collection.owner_id === userId) {
+    return true;
+  }
+
+  const role = members.get(`${collectionId}:${userId}`);
+
+  return role === "collaborator";
+}),
 };
 jest.unstable_mockModule("../../src/repositories/pinRepository.js", () => ({
   pinsRepository,
@@ -191,37 +211,70 @@ describe("pin + collection service integration", () => {
     ).resolves.toEqual([pin]);
   });
 
-  test("collaborator can add/remove, viewer cannot, pin creator still controls editing", async () => {
-    const collection = await collectionService.createCollection("owner", {
-      title: "Trip",
-      visibility: "public",
-    } as any);
-    const pin = await pinsService.createPin("owner", {
-      title: "Coffee",
-    } as any);
-    members.set(`${collection.id}:editor`, "collaborator");
-    members.set(`${collection.id}:viewer`, "viewer");
-    await expect(
-      collectionService.addPinToCollection(collection.id, pin.id, "viewer"),
-    ).rejects.toThrow("Only the owner or an editor");
-    await collectionService.addPinToCollection(collection.id, pin.id, "editor");
-    await expect(
-      pinsService.updatePin("editor", pin.id, { title: "Not allowed" }),
-    ).rejects.toMatchObject({ statusCode: 403 });
-    await expect(
-      collectionService.removePinFromCollection(
-        collection.id,
-        pin.id,
-        "viewer",
-      ),
-    ).rejects.toThrow("Only the owner or an editor");
-    await collectionService.removePinFromCollection(
+test("collaborator can add/remove/edit pins, viewer cannot, pin creator still controls editing", async () => {
+  const collection = await collectionService.createCollection("owner", {
+    title: "Trip",
+    visibility: "public",
+  } as any);
+
+  const pin = await pinsService.createPin("owner", {
+    title: "Coffee",
+  } as any);
+
+  members.set(`${collection.id}:editor`, "collaborator");
+  members.set(`${collection.id}:viewer`, "viewer");
+
+  // Viewer cannot add pins
+  await expect(
+    collectionService.addPinToCollection(collection.id, pin.id, "viewer"),
+  ).rejects.toThrow("Only the owner or an editor");
+
+  // Collaborator can add pins
+  await collectionService.addPinToCollection(collection.id, pin.id, "editor");
+  // Collaborator CAN edit a pin in their collection
+  const updatedByEditor = await pinsService.updatePin(
+    "editor",
+    pin.id,
+    { title: "Updated by editor" },
+  );
+
+  expect(updatedByEditor).toMatchObject({
+    id: pin.id,
+    creator_id: "owner",
+    title: "Updated by editor",
+  });
+  //Viewer cannot edit the pin
+  await expect(
+    pinsService.updatePin("viewer", pin.id, { title: "Not allowed" }),
+  ).rejects.toMatchObject({ statusCode: 403 });
+  // Pin creator can still edit their own pin
+  const updatedByOwner = await pinsService.updatePin(
+    "owner",
+    pin.id,
+    { title: "Updated by owner" },
+  );
+  expect(updatedByOwner.title).toBe("Updated by owner");
+  // Viewer cannot remove pins
+  await expect(
+    collectionService.removePinFromCollection(
       collection.id,
       pin.id,
-      "editor",
-    );
-    await expect(pinsService.getPinById(pin.id)).resolves.toEqual(pin);
+      "viewer",
+    ),
+  ).rejects.toThrow("Only the owner or an editor");
+  // Collaborator can remove pins
+  await collectionService.removePinFromCollection(
+    collection.id,
+    pin.id,
+    "editor",
+  );
+  // Removing a pin from a collection does NOT delete the pin itself
+  await expect(pinsService.getPinById(pin.id)).resolves.toMatchObject({
+    id: pin.id,
+    title: "Updated by owner",
   });
+});
+
 
   test("cannot add nonexistent pin or add to nonexistent collection", async () => {
     const collection = await collectionService.createCollection("owner", {
