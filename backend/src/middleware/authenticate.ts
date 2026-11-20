@@ -40,3 +40,17 @@ export async function authenticate(
   req.user = data.user;
   next();
 }
+
+// Like authenticate, but a request with no Authorization header goes through
+// as anonymous (req.user stays unset). A token that is sent must still be valid.
+export async function optionalAuthenticate(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  if (!req.headers.authorization) {
+    next();
+    return;
+  }
+  await authenticate(req, res, next);
+}

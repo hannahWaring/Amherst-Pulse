@@ -75,7 +75,10 @@ export async function getCollection(
       return;
     }
 
-    const collection = await collectionService.getCollectionById(id);
+    const collection = await collectionService.getCollectionById(
+      id,
+      req.user?.id,
+    );
     res.status(200).json(collection);
   } catch (error) {
     next(error);
@@ -98,7 +101,11 @@ export async function updateCollection(
 
     // req.body is undefined in Express 5 when no JSON body was sent.
     const body = req.body ?? {};
-    const collection = await collectionService.updateCollection(id, body);
+    const collection = await collectionService.updateCollection(
+      req.user!.id,
+      id,
+      body,
+    );
     res.status(200).json(collection);
   } catch (error) {
     next(error);
@@ -119,7 +126,7 @@ export async function deleteCollection(
       return;
     }
 
-    await collectionService.deleteCollection(id);
+    await collectionService.deleteCollection(req.user!.id, id);
     res.status(204).end();
   } catch (error) {
     next(error);
@@ -188,17 +195,16 @@ export async function removePin(
   }
 }
 
-// GET / — list all public collections (not implemented yet)
-export async function listPublic(_req: Request, res: Response): Promise<void> {
-  res.status(501).json({ error: "Not implemented" });
-}
-
-// POST /:id/share — share a collection with a user by user id or username (not implemented yet)
-export async function share(_req: Request, res: Response): Promise<void> {
-  res.status(501).json({ error: "Not implemented" });
-}
-
-// DELETE /:id/revoke — revoke a user's access to a collection (not implemented yet)
-export async function revoke(_req: Request, res: Response): Promise<void> {
-  res.status(501).json({ error: "Not implemented" });
+// Get all public collections (no login needed)
+export async function listPublic(
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const collections = await collectionService.getPublicCollections();
+    res.status(200).json(collections);
+  } catch (error) {
+    next(error);
+  }
 }

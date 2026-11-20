@@ -1,6 +1,10 @@
 import { Router } from "express";
 
-import { authenticate } from "../middleware/authenticate.js";
+import {
+  authenticate,
+  optionalAuthenticate,
+} from "../middleware/authenticate.js";
+import collectionMemberRouter from "./collectionMemberRoute.js";
 import {
   createCollection,
   listMyCollections,
@@ -11,16 +15,14 @@ import {
   addPin,
   removePin,
   listPublic,
-  share,
-  revoke,
 } from "../controllers/collectionController.js";
 
 // NOTE: the @openapi docstrings in this file are out of date. We need to rewrite this soon
 
 const router = Router();
 
-// Authenticate requests before reaching any collection controller.
-router.use(authenticate);
+// Login is required on every route except the public reads:
+// GET / (list public collections) and GET /:id (a public collection; login optional).
 
 /**
  * @openapi
@@ -86,7 +88,7 @@ router.use(authenticate);
  *       500:
  *         description: "`null value in column \"<column>\" of relation \"collections\" violates not-null constraint` · `invalid input syntax for type uuid: \"<value>\"` · `insert or update on table \"collections\" violates foreign key constraint \"collections_owner_id_fkey\"`"
  */
-router.post("/", createCollection);
+router.post("/", authenticate, createCollection);
 
 /**
  * @openapi
@@ -127,7 +129,7 @@ router.get("/", listPublic);
  *       500:
  *         description: "`invalid input syntax for type uuid: \"<userId>\"`"
  */
-router.get("/mine", listMyCollections);
+router.get("/mine", authenticate, listMyCollections);
 
 /**
  * @openapi
@@ -152,7 +154,7 @@ router.get("/mine", listMyCollections);
  *       500:
  *         description: "`invalid input syntax for type uuid: \"<userId>\"`"
  */
-router.get("/shared", listSharedCollections);
+router.get("/shared", authenticate, listSharedCollections);
 
 /**
  * @openapi
@@ -177,7 +179,7 @@ router.get("/shared", listSharedCollections);
  *       500:
  *         description: "`invalid input syntax for type uuid: \"<id>\"`"
  */
-router.get("/:id", getCollection);
+router.get("/:id", optionalAuthenticate, getCollection);
 
 /**
  * @openapi
@@ -207,7 +209,7 @@ router.get("/:id", getCollection);
  *       500:
  *         description: "`invalid input syntax for type uuid: \"<id>\"` · `Cannot coerce the result to a single JSON object` (empty body)"
  */
-router.patch("/:id", updateCollection);
+router.patch("/:id", authenticate, updateCollection);
 
 /**
  * @openapi
@@ -229,7 +231,7 @@ router.patch("/:id", updateCollection);
  *       500:
  *         description: "`invalid input syntax for type uuid: \"<id>\"`"
  */
-router.delete("/:id", deleteCollection);
+router.delete("/:id", authenticate, deleteCollection);
 
 /**
  * @openapi
@@ -268,7 +270,7 @@ router.delete("/:id", deleteCollection);
  *       500:
  *         description: "`invalid input syntax for type uuid: \"<value>\"`"
  */
-router.post("/:id/addPin", addPin);
+router.post("/:id/addPin", authenticate, addPin);
 
 /**
  * @openapi
@@ -302,42 +304,9 @@ router.post("/:id/addPin", addPin);
  *       500:
  *         description: "`invalid input syntax for type uuid: \"<value>\"`"
  */
-router.delete("/:id/deletePin/:pinId", removePin);
+router.delete("/:id/deletePin/:pinId", authenticate, removePin);
 
-/**
- * @openapi
- * /collections/{id}/share:
- *   post:
- *     summary: Share a collection with a user (not implemented)
- *     tags: [Collections]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - $ref: '#/components/parameters/CollectionId'
- *     responses:
- *       401:
- *         description: "`Authentication required.`"
- *       501:
- *         description: "`Not implemented`"
- */
-router.post("/:id/share", share);
-
-/**
- * @openapi
- * /collections/{id}/revoke:
- *   delete:
- *     summary: Revoke a user's access to a collection (not implemented)
- *     tags: [Collections]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - $ref: '#/components/parameters/CollectionId'
- *     responses:
- *       401:
- *         description: "`Authentication required.`"
- *       501:
- *         description: "`Not implemented`"
- */
-router.delete("/:id/revoke", revoke);
+// Member routes (list, add, change role, remove): /collections/:id/members
+router.use("/:id/members", authenticate, collectionMemberRouter);
 
 export default router;

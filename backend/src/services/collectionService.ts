@@ -1,6 +1,11 @@
 //this is just a basic structure (same as pinService)
 //does not authenticate if the one who wants to edit is the authorized
-import { conflict, forbidden, notFound } from "../errors/AppError.js";
+import {
+  conflict,
+  forbidden,
+  notFound,
+  unauthorized,
+} from "../errors/AppError.js";
 import { collectionsRepository } from "../repositories/collectionRepository.js";
 import { pinsRepository } from "../repositories/pinRepository.js";
 import {
@@ -48,30 +53,58 @@ export const collectionService = {
     return await collectionsRepository.findAllSharedWithUser(userId);
   },
 
-  // get a collection by its id
-  async getCollectionById(id: string) {
+  // get all public collections
+  async getPublicCollections() {
+    return await collectionsRepository.findAllPublic();
+  },
+
+  // get a collection by its id: anyone can see a public one; a private one only its owner or a member
+  async getCollectionById(id: string, userId?: string) {
     const collection = await collectionsRepository.findById(id);
     if (!collection) {
       throw notFound("Collection not found");
     }
+    if (collection.visibility === "public") {
+      return collection;
+    }
+    if (!userId) {
+      throw unauthorized("Authentication required.");
+    }
+    if (collection.owner_id === userId) {
+      return collection;
+    }
+    const role = await collectionsRepository.findMemberRole(id, userId);
+    if (role === null) {
+      throw forbidden("You do not have access to this collection");
+    }
     return collection;
   },
 
-  // update a collection
-  async updateCollection(id: string, input: UpdateCollectionInput) {
+  // update a collection (owner only)
+  async updateCollection(
+    userId: string,
+    id: string,
+    input: UpdateCollectionInput,
+  ) {
     validateUpdateCollection(input);
     const existingCollection = await collectionsRepository.findById(id);
     if (!existingCollection) {
       throw notFound("Collection not found");
     }
+    if (existingCollection.owner_id !== userId) {
+      throw forbidden("Only the owner of this collection can do this");
+    }
     return await collectionsRepository.update(id, input);
   },
 
-  // delete a collection
-  async deleteCollection(id: string) {
+  // delete a collection (owner only)
+  async deleteCollection(userId: string, id: string) {
     const existingCollection = await collectionsRepository.findById(id);
     if (!existingCollection) {
       throw notFound("Collection not found");
+    }
+    if (existingCollection.owner_id !== userId) {
+      throw forbidden("Only the owner of this collection can do this");
     }
     await collectionsRepository.delete(id);
   },
