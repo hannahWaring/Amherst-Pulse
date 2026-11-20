@@ -5,10 +5,11 @@ import { publicCollections } from '../data/publicCollections';
 const menuItems = [
     {label: 'Home', icon: House, route: "/home"},
     {label: 'Explore', icon: Compass, route: "/explore"},
-    {label: 'My Pins', icon: MapPin, route: "/pins"},
+    {label: 'My Pins', icon: MapPin, route: "/MyPins"},
     {label: 'My Collections', icon: Folder, route: "/collections"},
     {label: 'Settings', icon: Settings, route: "/settings"}
 ];
+
 
 export default function Sidebar({
     onCreatePin,
@@ -26,28 +27,29 @@ export default function Sidebar({
 
     return (
         <aside className="w-64 min-h-[calc(100vh-4rem)] shrink-0 border-r border-slate-200 bg-white p-4 dark:border-[#30363d] dark:bg-[#161b22]">
-            <nav className = "flex flex-col gap-2">
-            {menuItems.map((item) => {
-                const Icon = item.icon;
-                // label with icon
-                return  (
-                    <a
-                    href={item.route}
-                    key={item.label}
-                    className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium ${
-                       currentPath === item.route || (item.label === 'Home' && currentPath === '/')
-                       ? 'bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-400'
-                       : 'text-slate-600 dark:text-slate-300'
-                    }`}
-                    > 
-                    {/* label */}
-                       <Icon className="h-5 w-5" />
-                       {item.label}
-                    </a>
-                );
+            <nav className="flex flex-col gap-2">
+    {menuItems.map((item) => {
+        const Icon = item.icon;
+        const isActive =
+            currentPath === item.route ||
+            (item.label === 'Home' && currentPath === '/');
 
-            })}
-        </nav>
+        return (
+            <a
+                href={item.route}
+                key={item.label}
+                className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium ${
+                    isActive
+                        ? 'bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-400'
+                        : 'text-slate-600 dark:text-slate-300'
+                }`}
+            >
+                <Icon className="h-5 w-5" />
+                {item.label}
+            </a>
+        );
+    })}
+</nav>
         
 <div className="mt-5 border-t border-slate-100 pt-5 dark:border-[#30363d]">
   <button
@@ -93,7 +95,7 @@ export default function Sidebar({
                  </h3>
 
                  <label className = "mb-2 block text-xs font-semibold text-slate-600">
-                    RSO/Orrganization
+                    RSO/Organization
                  </label>
 
                  <select

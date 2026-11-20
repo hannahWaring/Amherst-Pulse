@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
-import {MapPin, X, ImagePlus, Search, ArrowRight} from 'lucide-react';
+import {MapPin, X, ImagePlus, Search, ArrowRight, Globe2, LockKeyhole} from 'lucide-react';
+
 
 
 const phases = [
@@ -8,15 +9,36 @@ const phases = [
     'Sharing'
 ]
 
-export default function CreatePin({onClose}) {
+export default function CreatePin({onClose, mode = 'create', pin, onSave}) {
     // title left
-    const [title, setTitle] = useState('');
+    const isEditing = mode === 'edit';
+    const [title, setTitle] = useState(pin?.label ?? '');
+    const [description, setDescription] = useState(pin?.description ?? '');
+    const [visibility, setVisibility] = useState(pin?.visibility ?? 'private');  
     const [Phase, setPhase] = useState(0);
+    const [startTime, setStartTime] = useState(pin?.startTime ?? '');
+    const [date, setDate] = useState(pin?.date ?? '');
+    const [endTime, setEndTime] = useState(pin?.endTime ?? '');
+    const hasUnsavedChanges =
+    title !== (pin?.label ?? '') ||
+    description !== (pin?.description ?? '') ||
+    visibility !== (pin?.visibility ?? 'private') ||
+    date !== (pin?.date ?? '') ||
+    startTime !== (pin?.startTime ?? '') ||
+    endTime !== (pin?.endTime ?? '');
+
+const handleClose = () => {
+    if (
+        !hasUnsavedChanges ||
+        window.confirm('You have unsaved changes. Are you sure you want to exit?')
+    ) {
+        onClose();
+    }
+};
     // description o the right
-    const [description, setDescription] = useState('');
     return (
         <div className = "fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4">
-            <div className = "w-full max-w-4xl rounded-3xl bg-white p-6 shadow-2xl">
+            <div className = "max-h-[calc(100dvh-2rem)] w-full max-w-4xl overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl">
 
                 {/* Header*/}
                 <div className = "flex items-center justify-between">
@@ -24,18 +46,13 @@ export default function CreatePin({onClose}) {
                     <MapPin className = "h-6 w-6 text-violet-600" />
                     <div className ="text-left">
                         <h2 className = "text-2xl font-bold text-[#1f2757]">
-                            Create New Pin
+                            {isEditing ? 'Edit Pin' : 'Create New Pin'}
                         </h2>
-                    </div>
-                    <div className  = "flex flex-items justify-center" >
-                        <h3 className='text-sm font-bold text-slate-100'>
-                            Timing
-                        </h3>
                     </div>
             </div>
             <button
                 type ="button"
-                onClick = {onClose}
+                onClick = {handleClose}
                 aria-label = "Close Modal"
                 className = "rounded-lg p-2 text-slate-500 hover:bg-slate-100"
             >
@@ -166,52 +183,87 @@ export default function CreatePin({onClose}) {
       Event
     </h3>
     {/*dropdown for time... to ... */}
-<input type = "date"/>
-<div className="flex items-center gap-4">
-  <div>
-    <label>From Time</label>
-    <input type="time" />
-  </div>
+    <input
+    type="date"
+    value={date}
+    onChange={(e) => setDate(e.target.value)}
+/>
 
-  <div>
-    <label>To Time</label>
-    <input type="time" />
-  </div>
+<div className="flex items-center gap-4">
+    <div>
+        <label>From Time</label>
+        <input
+            type="time"
+            value={startTime}
+            onChange={(e) => setStartTime(e.target.value)}
+        />
+    </div>
+
+    <div>
+        <label>To Time</label>
+        <input
+            type="time"
+            value={endTime}
+            onChange={(e) => setEndTime(e.target.value)}
+        />
+    </div>
 </div>
   </div>
 </div>)}
 
 {/* Phase 3*/}
-{Phase == 2 && (
-<div className = "justify-center mt-6 w-full mx-auto rounded-2xl bg-[#F8F6FF] p-5">
-  <h3 className = "mx-auto w-full  mb-4 text-lg font-bold text-[#1f2757]">
-  Visibility
-  </h3>
+{Phase === 2 && (
+    <fieldset className="mt-6">
+        <legend className="mb-3 text-sm font-semibold text-[#1f2757]">
+            Who can see this pin?
+        </legend>
 
-   <div className  = "flex items-center gap-6">
-     <label className="flex items-center gap-2">
-      <input
-        type = "radio"
-        name = "visibility"
-        value = "private"
-        defaultChecked
-        className = "accent-violet-600"
-      />
-      Private
-     </label>
+        <div className="flex flex-col gap-3">
+            {[
+                {
+                    value: 'public',
+                    label: 'Public',
+                    detail: 'Anyone can find and view this pin.',
+                    Icon: Globe2,
+                },
+                {
+                    value: 'private',
+                    label: 'Private',
+                    detail: 'Only you can view this pin.',
+                    Icon: LockKeyhole,
+                },
+            ].map((option) => (
+                <label
+                    key={option.value}
+                    className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 p-4"
+                >
+                    <input
+                        type="radio"
+                        name="pin-visibility"
+                        value={option.value}
+                        checked={visibility === option.value}
+                        onChange={() => setVisibility(option.value)}
+                        className="mt-1 accent-violet-600"
+                    />
 
-     <label>
-<input
-  type = "radio"
-  name = "visibility"
-  value = "public"
-  className = "accent-violet-600"
-/>
-  Public
-     </label>
-    </div>  
+                    <option.Icon
+                        className="mt-0.5 h-5 w-5 shrink-0 text-violet-600"
+                        aria-hidden="true"
+                    />
 
-</div>)}
+                    <span>
+                        <span className="block text-sm font-semibold text-[#1f2757]">
+                            {option.label}
+                        </span>
+                        <span className="mt-1 block text-xs text-slate-500">
+                            {option.detail}
+                        </span>
+                    </span>
+                </label>
+            ))}
+        </div>
+    </fieldset>
+)}
 
 {/* Footer */}
 <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-5">
@@ -219,31 +271,63 @@ export default function CreatePin({onClose}) {
 
   <button
     type = "button"
-    onClick = {() => { if (Phase > 0) {setPhase(Phase-1);} }}
-    className="  rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-slate-500 text-white"
-
+    onClick = {() => { 
+      if (Phase > 0) {setPhase(Phase-1);} 
+    }}
+className={`rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white ${
+    Phase === 0 ? 'invisible' : ''
+}`}
   >
     Back
   </button>
+
+<div className="ml-auto flex items-center gap-3">
+  {Phase < phases.length - 1 && (
     <button
     type="button"
-    onClick={() =>{ 
-  if (Phase ==2) {
-    onClose();
-  }
-else {setPhase(Phase+1);}}}
-    className="flex items-center gap-2 rounded-xl bg-violet-600 px-6 py-3 text-sm font-semibold text-white"
-  >
-    {Phase  === 2 ? "Create" : "Next"}
+    onClick={() => {
+        setPhase(Phase + 1);
+    }}
+    className="flex items-center gap-2 rounded-xl border border-violet-600 px-6 py-3 text-sm font-semibold text-violet-600 hover:bg-violet-50"
+>
+    Next
     <ArrowRight className="h-4 w-4" />
-    
+    </button>
+  )}
 
-  </button>
+        {isEditing && (
+            <button
+                type="button"
+                onClick={() => {
+                    onSave?.({
+                        ...pin,
+                        label: title,
+                        description,
+                        visibility,
+                        date,
+                        startTime,
+                        endTime,
+                    });
+                    onClose();
+                }}
+                className="rounded-xl bg-violet-600 px-6 py-3 text-sm font-semibold text-white"
+            >
+                Save Changes
+            </button>
+        )}
+      </div>
 
-</div>
-
-
+        {!isEditing && Phase === 2 && (
+            <button
+                type="button"
+                onClick={onClose}
+                className="rounded-xl bg-violet-600 px-6 py-3 text-sm font-semibold text-white"
+            >
+                Create
+            </button>
+        )}
     </div>
+</div>
     </div>
     );
 }

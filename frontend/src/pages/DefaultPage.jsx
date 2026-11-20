@@ -2,12 +2,12 @@ import React, {useState} from 'react';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
 import MapGGAPI from '../components/map_gg_api';
-import {Plus} from 'lucide-react';
 import CreatePin from '../components/pins/CreatePin';
 import CreateCollection from '../components/collections/CreateCollection';
+import MyPins from './MyPins';
 import { publicCollections } from '../data/publicCollections';
 
-export default function DefaultPage() {
+export default function DefaultPage({isMyPinOpen}) {
     // set const variables to turn on create pin
     const [isCreatePinOpen, setIsCreatePinOpen] = useState(false);
     const [isCreateCollectionOpen, setIsCreateCollectionOpen] = useState(false);
@@ -31,9 +31,10 @@ export default function DefaultPage() {
             <Navbar />
 
             <div className = "flex">
-                <Sidebar 
+                <Sidebar
                     onCreatePin = {() => setIsCreatePinOpen(true)}
                     onCreateCollection = {() => setIsCreateCollectionOpen(true)}
+
                     selectedCollectionIds={selectedCollectionIds}
                     onCollectionToggle={(collectionId) => setSelectedCollectionIds((current) =>
                         current.includes(collectionId)
@@ -45,20 +46,25 @@ export default function DefaultPage() {
                     />
 
             <div className = "flex flex-1 items-center justify-center">
-                <MapGGAPI pins={visiblePins} />
+                {isMyPinOpen
+                ? <MyPins />
+                : <MapGGAPI pins={visiblePins} />}
            </div>
 
             {/*Create Pin Modal*/}
             {isCreatePinOpen && (
-                <CreatePin 
+                <CreatePin
                 onClose = { () => setIsCreatePinOpen(false)} />
             )}
+
+
             {/*Create Collection Modal*/}
             {isCreateCollectionOpen && (
-                <CreateCollection 
-                onClose = { () => setIsCreateCollectionOpen(false)} />
+                <CreateCollection
+                    onClose={() => setIsCreateCollectionOpen(false)}
+                />
             )}
-            </div>
+        </div>
         </main>
     );
 

@@ -12,23 +12,27 @@ export default function App() {
 
   useEffect(() => {
     const handlePopState = () => setPath(window.location.pathname);
+
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
   if (!isStarted && path === '/') {
     return (
-    <WelcomePage 
-    onGetStarted = { () => setIsStarted(true)} />
-  );
-
+      <WelcomePage
+        onGetStarted={() => setIsStarted(true)}
+      />
+    );
   }
+
   if (path === '/collections') return <ViewCollections />;
   if (path === '/settings') return <SettingsPage />;
   if (path === '/explore') return <ExplorePage />;
+
   const collectionMatch = path.match(/^\/collections\/(\d+)$/);
-  if (collectionMatch) return <CollectionPage collectionId={Number(collectionMatch[1])} />;
-  if (path === '/home') return <DefaultPage />;
-  return <DefaultPage />
-  
+  if (collectionMatch) {
+    return <CollectionPage collectionId={Number(collectionMatch[1])} />;
+  }
+
+  return <DefaultPage isMyPinOpen={path === '/MyPins'} />;
 }
