@@ -3,14 +3,55 @@
     import CreatePin from '../components/pins/CreatePin';
 
     const initialPins = [
-        {label: 'Pin name 1', image : `/isometric-3d-map.png `, time : `10pm - 11pm`, key: `Pin 1`}, 
-        {label: 'Pin name 2', image : `/isometric-3d-map.png `, time : `5am - 7am`, key: `Pin 2`},
-        {label: 'Pin name 3', image : `/isometric-3d-map.png `, time : `Tuesday - Thursday`, key: `Pin 3`},
-        {label: 'Pin name 4', image : `/isometric-3d-map.png `, time : `October 5th 5pm`, key: `Pin 4`}, 
-        {label: 'Pin name 5', image : `/isometric-3d-map.png `, time : `2026 October 27th `, key: `Pin 5`},
-        {label: 'Pin name 6', image : `/isometric-3d-map.png `, time : `2026 October 27th 9pm - 11pm`, key: `Pin 6`}
-
-    ];
+    {
+        label: 'Pin name 1',
+        image: '/isometric-3d-map.png',
+        date: '2026-11-22',
+        startTime: '22:00',
+        endTime: '23:00',
+        key: 'Pin 1',
+    },
+    {
+        label: 'Pin name 2',
+        image: '/isometric-3d-map.png',
+        date: '2026-11-23',
+        startTime: '05:00',
+        endTime: '07:00',
+        key: 'Pin 2',
+    },
+    {
+        label: 'Pin name 3',
+        image: '/isometric-3d-map.png',
+        date: '2026-11-24',
+        startTime: '14:00',
+        endTime: '16:00',
+        key: 'Pin 3',
+    },
+    {
+        label: 'Pin name 4',
+        image: '/isometric-3d-map.png',
+        date: '2026-11-25',
+        startTime: '17:00',
+        endTime: '18:00',
+        key: 'Pin 4',
+    },
+    {
+        label: 'Pin name 5',
+        image: '/isometric-3d-map.png',
+        date: '2026-11-26',
+        startTime: '10:00',
+        endTime: '12:00',
+        key: 'Pin 5',
+    },
+    {
+        label: 'Pin name 6',
+        image: '/isometric-3d-map.png',
+        date: '2026-11-27',
+        startTime: '21:00',
+        endTime: '23:00',
+        key: 'Pin 6',
+    },
+];
     export default function MyPins() {
         const [search, setSearch] = useState('');
         const [editingPin, setEditingPin] = useState(null);

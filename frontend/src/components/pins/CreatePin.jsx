@@ -38,7 +38,7 @@ const handleClose = () => {
     // description o the right
     return (
         <div className = "fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4">
-            <div className = "w-full max-w-4xl rounded-3xl bg-white p-6 shadow-2xl">
+            <div className = "max-h-[calc(100dvh-2rem)] w-full max-w-4xl overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl">
 
                 {/* Header*/}
                 <div className = "flex items-center justify-between">
@@ -271,43 +271,63 @@ const handleClose = () => {
 
   <button
     type = "button"
-    onClick = {() => { if (Phase > 0) {setPhase(Phase-1);} }}
+    onClick = {() => { 
+      if (Phase > 0) {setPhase(Phase-1);} 
+    }}
 className={`rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white ${
     Phase === 0 ? 'invisible' : ''
 }`}
   >
     Back
   </button>
+
+<div className="ml-auto flex items-center gap-3">
+  {Phase < phases.length - 1 && (
     <button
     type="button"
     onClick={() => {
-        if (Phase === 2) {
-            if (isEditing) {
-                onSave?.({
-                    ...pin,
-                    label: title,
-                    description,
-                    visibility,
-                    date,
-                    startTime,
-                    endTime
-                });
-            }
-            onClose();
-        } else {
-            setPhase(Phase + 1);
-        }
+        setPhase(Phase + 1);
     }}
-    className="flex items-center gap-2 rounded-xl bg-violet-600 px-6 py-3 text-sm font-semibold text-white"
+    className="flex items-center gap-2 rounded-xl border border-violet-600 px-6 py-3 text-sm font-semibold text-violet-600 hover:bg-violet-50"
 >
-    {Phase === 2 ? (isEditing ? 'Save Changes' : 'Create') : 'Next'}
+    Next
     <ArrowRight className="h-4 w-4" />
-</button>
+    </button>
+  )}
 
-</div>
+        {isEditing && (
+            <button
+                type="button"
+                onClick={() => {
+                    onSave?.({
+                        ...pin,
+                        label: title,
+                        description,
+                        visibility,
+                        date,
+                        startTime,
+                        endTime,
+                    });
+                    onClose();
+                }}
+                className="rounded-xl bg-violet-600 px-6 py-3 text-sm font-semibold text-white"
+            >
+                Save Changes
+            </button>
+        )}
+      </div>
 
-
+        {!isEditing && Phase === 2 && (
+            <button
+                type="button"
+                onClick={onClose}
+                className="rounded-xl bg-violet-600 px-6 py-3 text-sm font-semibold text-white"
+            >
+                Create
+            </button>
+        )}
     </div>
+</div>
     </div>
     );
 }
