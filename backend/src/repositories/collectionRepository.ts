@@ -39,6 +39,16 @@ export const collectionsRepository = {
     return (data ?? []) as Collection[];
   },
 
+  // Get all public collections
+  async findAllPublic(): Promise<Collection[]> {
+    const { data, error } = await supabaseAdmin
+      .from(TABLE)
+      .select("*")
+      .eq("visibility", "public");
+    if (error) throw error;
+    return (data ?? []) as Collection[];
+  },
+
   // Get all collections shared with a user (they (the user) is in collection_members)
   async findAllSharedWithUser(userId: string): Promise<Collection[]> {
     const { data, error } = await supabaseAdmin
