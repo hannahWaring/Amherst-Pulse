@@ -9,15 +9,18 @@ This is a CS320 course project. `frontend/` and `database/` are still empty (`.g
 Stack:
 - **Backend:** Express 5 + TypeScript (Node.js, ESM) — scaffolded in `backend/`
 - **Auth:** Supabase — usernames are mapped to undeliverable `<username>@<AUTH_EMAIL_DOMAIN>` emails; no email confirmation
-- **Database:** PostgreSQL via `pg` (`DATABASE_URL`)
+- **Database:** PostgreSQL (Supabase-hosted). All data access uses the `supabase-js` query builder (`supabaseAdmin.from(...)`); no direct Postgres connection
 
 ### Backend commands (run in `backend/`)
 
-- `cp .env.example .env` and fill in Supabase/Postgres values
+- `cp .env.example .env` and fill in Supabase values
 - `npm run dev` — dev server with reload (tsx watch)
 - `npm run build` / `npm start` — compile to `dist/` and run
 - `npm run typecheck` — type-check only
-- No test or lint setup yet.
+- `npm test` — Jest (@swc/jest, supertest): runs unit then integration tests. No lint setup yet.
+  - `npm run test:unit` — `backend/tests/unit/`; no Docker or local Supabase needed
+  - `npm run test:integration` — `backend/tests/integration/`; needs Docker running. Starts the local Supabase if needed and resets its database first (both skipped in CI, which starts its own)
+- `npm run db:sync` — after a schema change in the hosted dashboard: pulls a new migration, resets the local database, and regenerates `src/lib/database.types.ts`
 
 ## AI use rules for this course (CS320)
 

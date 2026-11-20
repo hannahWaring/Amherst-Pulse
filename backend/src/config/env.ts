@@ -17,6 +17,5 @@ export const env = {
   supabaseUrl: required("SUPABASE_URL"),
   supabasePublishableKey: required("SUPABASE_PUBLISHABLE_KEY"),
   supabaseSecretKey: required("SUPABASE_SECRET_KEY"),
-  databaseUrl: required("DATABASE_URL"),
   authEmailDomain: process.env.AUTH_EMAIL_DOMAIN ?? "amherst-pulse.invalid",
 };
