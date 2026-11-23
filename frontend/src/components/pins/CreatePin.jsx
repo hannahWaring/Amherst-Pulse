@@ -5,8 +5,7 @@ import {MapPin, X, ImagePlus, Search, ArrowRight, Globe2, LockKeyhole} from 'luc
 
 const phases = [
     'Basic Info',
-    'Time',
-    'Sharing'
+    'Time'
 ]
 
 export default function CreatePin({onClose, mode = 'create', pin, onSave}) {
@@ -14,16 +13,19 @@ export default function CreatePin({onClose, mode = 'create', pin, onSave}) {
     const isEditing = mode === 'edit';
     const [title, setTitle] = useState(pin?.label ?? '');
     const [description, setDescription] = useState(pin?.description ?? '');
-    const [visibility, setVisibility] = useState(pin?.visibility ?? 'private');  
     const [Phase, setPhase] = useState(0);
     const [startTime, setStartTime] = useState(pin?.startTime ?? '');
     const [date, setDate] = useState(pin?.date ?? '');
+    const [endDate, setEndDate] = useState(pin?.endDate ?? pin?.date ?? '');
     const [endTime, setEndTime] = useState(pin?.endTime ?? '');
+    // save used here to save pin changes (edit Pin modal)
+    const [saving, setSaving] = useState(false);
+    const [saveError, setSaveError] = useState('');
     const hasUnsavedChanges =
     title !== (pin?.label ?? '') ||
     description !== (pin?.description ?? '') ||
-    visibility !== (pin?.visibility ?? 'private') ||
     date !== (pin?.date ?? '') ||
+    endDate !== (pin?.endDate ?? pin?.date ?? '') ||
     startTime !== (pin?.startTime ?? '') ||
     endTime !== (pin?.endTime ?? '');
 
@@ -57,31 +59,31 @@ const handleClose = () => {
                 className = "rounded-lg p-2 text-slate-500 hover:bg-slate-100"
             >
                 <X className  ="h-5 w-5" />
-                </button> 
+                </button>
         </div>
         {/*Phases Navigation*/}
-        
-        <div className = "mt-6 grid grid-cols-3 gap-4">
+
+        <div className = "mt-6 grid grid-cols-2 gap-4">
             {phases.map((phase, index) => (
-                //  key phase is for changing between key states 
+                //  key phase is for changing between key states
                 <div key = {phase} className = "flex flex-col gap-3">
                     <div className = "flex items-center gap-2">
                         <div
           className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
-            index === Phase 
+            index === Phase
             ? 'bg-violet-600 text-white'
             : 'bg-violet-50 text-slate-400'
           }`}
-        > 
+        >
         {index+1}
         </div>
-        <span 
+        <span
         className = {`text-sm font-medium ${
             index == Phase
-            ? 'text-violet-700' 
+            ? 'text-violet-700'
             : 'text-slate-400'
 
-            }`} 
+            }`}
         >
             {phase}
         </span>
@@ -90,7 +92,7 @@ const handleClose = () => {
         <div
         className={`h-1 rounded-full ${
           index === Phase
-          ? 'bg-violet-600' 
+          ? 'bg-violet-600'
           : 'bg-violet-100'
         }`}
       />
@@ -99,7 +101,7 @@ const handleClose = () => {
   ))}
 </div>
 
-        
+
 {/* Phase 1 */}
 {Phase === 0 && (
 <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -183,11 +185,32 @@ const handleClose = () => {
       Event
     </h3>
     {/*dropdown for time... to ... */}
-    <input
-    type="date"
-    value={date}
-    onChange={(e) => setDate(e.target.value)}
-/>
+    <div className="mb-4 flex flex-wrap gap-4">
+    <div>
+        <label htmlFor="pin-start-date" className="mb-1 block">
+            Start date
+        </label>
+        <input
+            id="pin-start-date"
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+        />
+    </div>
+
+    <div>
+        <label htmlFor="pin-end-date" className="mb-1 block">
+            End date
+        </label>
+        <input
+            id="pin-end-date"
+            type="date"
+            value={endDate}
+            min={date || undefined}
+            onChange={(e) => setEndDate(e.target.value)}
+        />
+    </div>
+</div>
 
 <div className="flex items-center gap-4">
     <div>
@@ -210,59 +233,10 @@ const handleClose = () => {
 </div>
   </div>
 </div>)}
-
-{/* Phase 3*/}
-{Phase === 2 && (
-    <fieldset className="mt-6">
-        <legend className="mb-3 text-sm font-semibold text-[#1f2757]">
-            Who can see this pin?
-        </legend>
-
-        <div className="flex flex-col gap-3">
-            {[
-                {
-                    value: 'public',
-                    label: 'Public',
-                    detail: 'Anyone can find and view this pin.',
-                    Icon: Globe2,
-                },
-                {
-                    value: 'private',
-                    label: 'Private',
-                    detail: 'Only you can view this pin.',
-                    Icon: LockKeyhole,
-                },
-            ].map((option) => (
-                <label
-                    key={option.value}
-                    className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 p-4"
-                >
-                    <input
-                        type="radio"
-                        name="pin-visibility"
-                        value={option.value}
-                        checked={visibility === option.value}
-                        onChange={() => setVisibility(option.value)}
-                        className="mt-1 accent-violet-600"
-                    />
-
-                    <option.Icon
-                        className="mt-0.5 h-5 w-5 shrink-0 text-violet-600"
-                        aria-hidden="true"
-                    />
-
-                    <span>
-                        <span className="block text-sm font-semibold text-[#1f2757]">
-                            {option.label}
-                        </span>
-                        <span className="mt-1 block text-xs text-slate-500">
-                            {option.detail}
-                        </span>
-                    </span>
-                </label>
-            ))}
-        </div>
-    </fieldset>
+{saveError && (
+    <p role="alert" className="mt-4 text-sm text-red-600">
+        {saveError}
+    </p>
 )}
 
 {/* Footer */}
@@ -271,8 +245,8 @@ const handleClose = () => {
 
   <button
     type = "button"
-    onClick = {() => { 
-      if (Phase > 0) {setPhase(Phase-1);} 
+    onClick = {() => {
+      if (Phase > 0) {setPhase(Phase-1);}
     }}
 className={`rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white ${
     Phase === 0 ? 'invisible' : ''
@@ -298,18 +272,33 @@ className={`rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white 
         {isEditing && (
             <button
                 type="button"
-                onClick={() => {
-                    onSave?.({
-                        ...pin,
-                        label: title,
-                        description,
-                        visibility,
-                        date,
-                        startTime,
-                        endTime,
-                    });
-                    onClose();
-                }}
+                disabled={saving}
+                onClick={ async () => {
+                    setSaving(true);
+                    setSaveError('');
+
+                    try {
+                if (!onSave) {
+                    throw new Error('Saving is not connected yet.');
+                }
+
+                await onSave({
+                    ...pin,
+                    label: title,
+                    description,
+                    date,
+                    startTime,
+                    endTime,
+                    endDate
+                });
+
+                onClose();
+            } catch (err) {
+                setSaveError(err.message);
+            } finally {
+                setSaving(false);
+            }
+        }}
                 className="rounded-xl bg-violet-600 px-6 py-3 text-sm font-semibold text-white"
             >
                 Save Changes
@@ -317,14 +306,42 @@ className={`rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white 
         )}
       </div>
 
-        {!isEditing && Phase === 2 && (
+        {!isEditing && Phase === phases.length - 1 && (
+          // wait for onSSave -> callback POST from parent component
             <button
-                type="button"
-                onClick={onClose}
-                className="rounded-xl bg-violet-600 px-6 py-3 text-sm font-semibold text-white"
-            >
-                Create
-            </button>
+    type="button"
+    disabled={saving}
+    onClick={async () => {
+        if (saving) return;
+
+        setSaving(true);
+        setSaveError('');
+
+        try {
+            if (!onSave) {
+                throw new Error('Creating pins is not connected yet.');
+            }
+
+            await onSave({
+                label: title,
+                description,
+                date,
+                startTime,
+                endTime,
+                endDate
+            });
+
+            onClose();
+        } catch (err) {
+            setSaveError(err.message);
+        } finally {
+            setSaving(false);
+        }
+    }}
+    className="rounded-xl bg-violet-600 px-6 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+>
+    {saving ? 'Creating...' : 'Create'}
+</button>
         )}
     </div>
 </div>

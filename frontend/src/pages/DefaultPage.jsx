@@ -7,7 +7,11 @@ import CreateCollection from '../components/collections/CreateCollection';
 import MyPins from './MyPins';
 import { publicCollections } from '../data/publicCollections';
 
-export default function DefaultPage({isMyPinOpen}) {
+export default function DefaultPage({
+    isMyPinOpen,
+    accessToken,
+    apiBaseUrl
+}) {
     // set const variables to turn on create pin
     const [isCreatePinOpen, setIsCreatePinOpen] = useState(false);
     const [isCreateCollectionOpen, setIsCreateCollectionOpen] = useState(false);
@@ -25,6 +29,54 @@ export default function DefaultPage({isMyPinOpen}) {
             longitude: pin.lng,
             color: collection.color,
         })));
+
+        // createPin function to Create a Pin -> using POST
+    async function createPin(newPin) {
+        if (!apiBaseUrl || !accessToken) {
+        throw new Error('API connection or login is not available.');
+    }
+    const {date, endDate, startTime, endTime} = newPin;
+    const hasTime = Boolean(date || endDate || startTime || endTime);
+    if (hasTime && !(date && endDate && startTime && endTime)) {
+        throw new Error('Please enter both dates and both times.');
+    }
+
+    const start = hasTime ? new Date(`${date}T${startTime}`) : null;
+    const end = hasTime ? new Date(`${endDate}T${endTime}`) : null;
+
+    if (
+        hasTime &&
+        (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()))
+    ) {
+        throw new Error('Please enter valid dates and times.');
+    }
+
+    if (hasTime && end <= start) {
+        throw new Error('End date and time must be after the start.');
+    }
+
+    const response = await fetch(`${apiBaseUrl}/pins`, {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            title: newPin.label,
+            description: newPin.description,
+            starts_at: start ? start.toISOString() : null,
+            ends_at: end ? end.toISOString() : null,
+        }),
+    });
+
+
+    if (!response.ok) {
+        throw new Error(`Could not create pin (${response.status}).`);
+    }
+
+    return response.json();
+}
+
 
     return (
         <main className = "min-h-screen bg-[#F8F9FE] ">
@@ -47,14 +99,18 @@ export default function DefaultPage({isMyPinOpen}) {
 
             <div className = "flex flex-1 items-center justify-center">
                 {isMyPinOpen
-                ? <MyPins />
+                ? <MyPins
+                    accessToken={accessToken}
+                    apiBaseUrl={apiBaseUrl}
+                />
                 : <MapGGAPI pins={visiblePins} />}
            </div>
 
             {/*Create Pin Modal*/}
             {isCreatePinOpen && (
                 <CreatePin
-                onClose = { () => setIsCreatePinOpen(false)} />
+                onClose = { () => setIsCreatePinOpen(false)}
+                onSave={createPin} />
             )}
 
 
