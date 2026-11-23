@@ -131,7 +131,6 @@ export type Database = {
           id: string
           owner_id: string
           title: string
-          viewer_can_add_pins: boolean
           visibility: string
         }
         Insert: {
@@ -139,7 +138,6 @@ export type Database = {
           id: string
           owner_id: string
           title: string
-          viewer_can_add_pins?: boolean
           visibility?: string
         }
         Update: {
@@ -147,7 +145,6 @@ export type Database = {
           id?: string
           owner_id?: string
           title?: string
-          viewer_can_add_pins?: boolean
           visibility?: string
         }
         Relationships: [

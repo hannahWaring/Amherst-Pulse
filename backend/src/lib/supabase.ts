@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { env } from "../config/env.js";
-import type { Database } from "./database.types.js";
+import type { Database } from "../types/database.types.js";
 
 const serverOptions = {
   auth: { autoRefreshToken: false, persistSession: false },

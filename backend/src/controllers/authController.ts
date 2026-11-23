@@ -1,5 +1,6 @@
 import type { Session } from "@supabase/supabase-js";
 import type { Request, Response } from "express";
+import { badRequest, conflict, unauthorized } from "../errors/AppError.js";
 import {
   supabaseAdmin,
   supabasePublic,
@@ -37,8 +38,7 @@ async function getUsername(userId: string): Promise<string> {
 export async function signup(req: Request, res: Response) {
   const { username, password } = req.body ?? {};
   if (!isNonEmptyString(username) || !isNonEmptyString(password)) {
-    res.status(400).json({ error: "username and password are required" });
-    return;
+    throw badRequest("username and password are required");
   }
 
   const email = usernameToEmail(username);
@@ -53,15 +53,13 @@ export async function signup(req: Request, res: Response) {
       createError.code === "email_exists" ||
       createError.code === "user_already_exists"
     ) {
-      res.status(409).json({ error: "Username is already taken" });
-      return;
+      throw conflict("Username is already taken");
     }
     if (
       createError.code === "weak_password" ||
       createError.code === "email_address_invalid"
     ) {
-      res.status(400).json({ error: createError.message });
-      return;
+      throw badRequest(createError.message);
     }
     throw createError;
   }
@@ -74,8 +72,7 @@ export async function signup(req: Request, res: Response) {
     // Don't leave an auth user behind without a profile.
     await supabaseAdmin.auth.admin.deleteUser(userId);
     if (profileError.code === "23505") {
-      res.status(409).json({ error: "Username is already taken" });
-      return;
+      throw conflict("Username is already taken");
     }
     throw profileError;
   }
@@ -92,8 +89,7 @@ export async function signup(req: Request, res: Response) {
 export async function login(req: Request, res: Response) {
   const { username, password } = req.body ?? {};
   if (!isNonEmptyString(username) || !isNonEmptyString(password)) {
-    res.status(400).json({ error: "username and password are required" });
-    return;
+    throw badRequest("username and password are required");
   }
 
   const { data, error } = await supabasePublic.auth.signInWithPassword({
@@ -102,8 +98,7 @@ export async function login(req: Request, res: Response) {
   });
   if (error) {
     if (error.code === "invalid_credentials") {
-      res.status(401).json({ error: "Invalid username or password" });
-      return;
+      throw unauthorized("Invalid username or password");
     }
     throw error;
   }
@@ -117,14 +112,12 @@ export async function logout(req: Request, res: Response) {
     ? header.slice("Bearer ".length)
     : "";
   if (!token) {
-    res.status(401).json({ error: "Missing bearer token" });
-    return;
+    throw unauthorized("Missing bearer token");
   }
 
   const { error } = await supabaseAdmin.auth.admin.signOut(token, "local");
   if (error) {
-    res.status(401).json({ error: "Invalid or expired token" });
-    return;
+    throw unauthorized("Invalid or expired token");
   }
 
   res.status(204).end();
@@ -133,16 +126,14 @@ export async function logout(req: Request, res: Response) {
 export async function refresh(req: Request, res: Response) {
   const { refresh_token } = req.body ?? {};
   if (!isNonEmptyString(refresh_token)) {
-    res.status(400).json({ error: "refresh_token is required" });
-    return;
+    throw badRequest("refresh_token is required");
   }
 
   const { data, error } = await supabasePublic.auth.refreshSession({
     refresh_token,
   });
   if (error || !data.session) {
-    res.status(401).json({ error: "Invalid or expired refresh token" });
-    return;
+    throw unauthorized("Invalid or expired refresh token");
   }
 
   res.json(authResponse(data.session, await getUsername(data.session.user.id)));
