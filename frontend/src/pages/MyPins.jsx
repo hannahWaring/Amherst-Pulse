@@ -116,6 +116,9 @@ return data.map((pin) => {
         endTime: end
             ? `${pad(end.getHours())}:${pad(end.getMinutes())}`
             : '',
+        endDate: end
+            ? `${end.getFullYear()}-${pad(end.getMonth() + 1)}-${pad(end.getDate())}`
+            : '',
     };
 
 });
@@ -150,21 +153,39 @@ try {
         if (!apiBaseUrl || !accessToken) {
             throw new Error('API connection or login is not available.');
         }
+        const {date, endDate, startTime, endTime} = updatedPin;
+        const hasTime = Boolean(date || endDate || startTime || endTime);
 
-const response = await fetch(
-        `${apiBaseUrl}/pins/${updatedPin.id}`,
-        {
-                    method: 'PATCH',
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                        'Content-Type': 'application/json',
-            },
-                body: JSON.stringify({
-                    title: updatedPin.label,
-                    description: updatedPin.description,
-            }),
+        if (hasTime && !(date && endDate && startTime && endTime)) {
+            throw new Error('Please enter both dates and both times.');
         }
-    );
+        const start = hasTime ? new Date(`${date}T${startTime}`) : null;
+        const end = hasTime ? new Date(`${endDate}T${endTime}`) : null;
+
+        if (
+        hasTime &&
+        (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()))
+    ) {
+        throw new Error('Please enter valid dates and times.');
+    }
+
+    if (hasTime && end <= start) {
+        throw new Error('End date and time must be after the start.');
+    }
+
+    const response = await fetch(`${apiBaseUrl}/pins/${updatedPin.id}`, {
+        method: 'PATCH',
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            title: updatedPin.label,
+            description: updatedPin.description,
+            starts_at: start ? start.toISOString() : null,
+            ends_at: end ? end.toISOString() : null,
+        }),
+    });
 
     if (!response.ok) {
         throw new Error(`Could not save pin (${response.status}).`);
@@ -175,7 +196,15 @@ const response = await fetch(
     setPins((currentPins) =>
         currentPins.map((pin) =>
             pin.id === savedPin.id
-                ? {...pin, ...savedPin, label: savedPin.title}
+                ? {
+                    ...pin,
+                    ...savedPin,
+                    label: savedPin.title,
+                    date,
+                    endDate,
+                    startTime,
+                    endTime,
+                }
                 : pin
         )
     );

@@ -35,6 +35,25 @@ export default function DefaultPage({
         if (!apiBaseUrl || !accessToken) {
         throw new Error('API connection or login is not available.');
     }
+    const {date, endDate, startTime, endTime} = newPin;
+    const hasTime = Boolean(date || endDate || startTime || endTime);
+    if (hasTime && !(date && endDate && startTime && endTime)) {
+        throw new Error('Please enter both dates and both times.');
+    }
+
+    const start = hasTime ? new Date(`${date}T${startTime}`) : null;
+    const end = hasTime ? new Date(`${endDate}T${endTime}`) : null;
+
+    if (
+        hasTime &&
+        (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()))
+    ) {
+        throw new Error('Please enter valid dates and times.');
+    }
+
+    if (hasTime && end <= start) {
+        throw new Error('End date and time must be after the start.');
+    }
 
     const response = await fetch(`${apiBaseUrl}/pins`, {
         method: 'POST',
@@ -45,8 +64,11 @@ export default function DefaultPage({
         body: JSON.stringify({
             title: newPin.label,
             description: newPin.description,
+            starts_at: start ? start.toISOString() : null,
+            ends_at: end ? end.toISOString() : null,
         }),
     });
+
 
     if (!response.ok) {
         throw new Error(`Could not create pin (${response.status}).`);
@@ -54,6 +76,8 @@ export default function DefaultPage({
 
     return response.json();
 }
+
+
     return (
         <main className = "min-h-screen bg-[#F8F9FE] ">
             <Navbar />

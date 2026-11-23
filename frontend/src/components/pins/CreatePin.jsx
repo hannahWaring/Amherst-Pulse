@@ -16,6 +16,7 @@ export default function CreatePin({onClose, mode = 'create', pin, onSave}) {
     const [Phase, setPhase] = useState(0);
     const [startTime, setStartTime] = useState(pin?.startTime ?? '');
     const [date, setDate] = useState(pin?.date ?? '');
+    const [endDate, setEndDate] = useState(pin?.endDate ?? pin?.date ?? '');
     const [endTime, setEndTime] = useState(pin?.endTime ?? '');
     // save used here to save pin changes (edit Pin modal)
     const [saving, setSaving] = useState(false);
@@ -23,8 +24,8 @@ export default function CreatePin({onClose, mode = 'create', pin, onSave}) {
     const hasUnsavedChanges =
     title !== (pin?.label ?? '') ||
     description !== (pin?.description ?? '') ||
-
     date !== (pin?.date ?? '') ||
+    endDate !== (pin?.endDate ?? pin?.date ?? '') ||
     startTime !== (pin?.startTime ?? '') ||
     endTime !== (pin?.endTime ?? '');
 
@@ -184,11 +185,32 @@ const handleClose = () => {
       Event
     </h3>
     {/*dropdown for time... to ... */}
-    <input
-    type="date"
-    value={date}
-    onChange={(e) => setDate(e.target.value)}
-/>
+    <div className="mb-4 flex flex-wrap gap-4">
+    <div>
+        <label htmlFor="pin-start-date" className="mb-1 block">
+            Start date
+        </label>
+        <input
+            id="pin-start-date"
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+        />
+    </div>
+
+    <div>
+        <label htmlFor="pin-end-date" className="mb-1 block">
+            End date
+        </label>
+        <input
+            id="pin-end-date"
+            type="date"
+            value={endDate}
+            min={date || undefined}
+            onChange={(e) => setEndDate(e.target.value)}
+        />
+    </div>
+</div>
 
 <div className="flex items-center gap-4">
     <div>
@@ -267,6 +289,7 @@ className={`rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white 
                     date,
                     startTime,
                     endTime,
+                    endDate
                 });
 
                 onClose();
@@ -305,6 +328,7 @@ className={`rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white 
                 date,
                 startTime,
                 endTime,
+                endDate
             });
 
             onClose();
